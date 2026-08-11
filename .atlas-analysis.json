@@ -1,13 +1,11 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "name": "Brudam TMS",
+  "projectType": "saas",
+  "projectName": "Brudam TMS",
+  "projectDescription": "Plataforma TMS 100% cloud para gestão de transporte rodoviário e aéreo, com emissão de documentos fiscais, rastreamento em tempo real, gestão financeira e API aberta para integrações.",
   "theme": "luma",
-  "colors": {
-    "primary": "#ef7025",
-    "light": "#eec9bc",
-    "dark": "#4fa1ab"
-  },
-  "favicon": "/favicon.svg",
+  "primaryColor": "#ef7025",
+  "lightColor": "#eec9bc",
+  "darkColor": "#4fa1ab",
   "navigation": {
     "tabs": [
       {
@@ -27,7 +25,7 @@
               "conceitos/visao-geral",
               "conceitos/documentos-fiscais",
               "conceitos/operacoes",
-              "conceitos/integracoes"
+              "conceitos/integrações"
             ]
           },
           {
@@ -76,16 +74,28 @@
       }
     ]
   },
-  "navbar": {
-    "primary": {
-      "type": "button",
-      "label": "Acessar o Sistema",
-      "href": "https://app.brudam.com.br"
-    }
-  },
-  "footer": {
-    "socials": {
-      "website": "https://brudam.com.br"
-    }
-  }
+  "keyFeatures": [
+    "Emissão e gestão de CT-e, MDF-e, NF-e, NFS-e e CIOT integrados ao SEFAZ",
+    "Rastreamento em tempo real de frota e entregas",
+    "Portal do cliente self-service para embarcadores",
+    "Gestão financeira com boleto, PIX e conciliação bancária",
+    "Roteirização inteligente para redução de custos",
+    "Suporte a frete rodoviário e aéreo (AWB) em um único sistema",
+    "Aplicativos mobile para motoristas e conferentes",
+    "API aberta para integração com ERP, e-commerce e sistemas externos",
+    "Integração nativa com SAP, TOTVS e Bling",
+    "Brudam Academy — plataforma de capacitação gratuita"
+  ],
+  "publicApiSurface": [
+    "POST /v1/login — Autenticação e obtenção de token JWT",
+    "POST /v1/delivery — Criação de ordem de entrega",
+    "GET /v1/delivery/{id} — Consulta de entrega por ID",
+    "PUT /v1/delivery/{id} — Atualização de ordem de entrega",
+    "DELETE /v1/delivery/{id} — Remoção de ordem de entrega",
+    "GET /v1/tracking/{id} — Rastreamento de envio",
+    "POST /v1/cte — Emissão de CT-e",
+    "POST /v1/mdfe — Emissão de MDF-e",
+    "GET /v1/financeiro — Consulta de dados financeiros",
+    "Bearer Token (JWT) via header Authorization"
+  ]
 }

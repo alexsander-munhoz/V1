@@ -1,0 +1,309 @@
+---
+title: "API de MDF-e: emitir e encerrar Manifestos Eletrônicos"
+sidebarTitle: "MDF-e"
+description: "Endpoints para emissão, consulta e encerramento de MDF-e (Manifesto de Documentos Fiscais Eletrônico) via API Brudam TMS."
+---
+
+O MDF-e (Manifesto de Documentos Fiscais Eletrônico) é exigido por lei para operações de transporte interestadual e intermunicipal, vinculando o veículo, o motorista e todos os CT-es transportados em uma única viagem. A API Brudam TMS automatiza a emissão, o acompanhamento e o encerramento do MDF-e, garantindo conformidade fiscal sem intervenção manual. Todos os endpoints exigem autenticação via Bearer Token no cabeçalho `Authorization`.
+
+---
+
+## Emitir MDF-e
+
+Emite um novo Manifesto de Documentos Fiscais Eletrônico vinculando veículo, motorista e os CT-es que compõem a carga daquela viagem. O documento é transmitido à SEFAZ e retorna com status `em_processamento`.
+
+**`POST /v1/mdfe`**
+
+### Corpo da requisição
+
+<ParamField body="veiculo" type="object" required>
+  Dados do veículo de tração utilizado na viagem.
+
+  <Expandable title="Propriedades do veículo">
+    <ParamField body="placa" type="string" required>
+      Placa do veículo no formato Mercosul (ex: `"ABC1D23"`) ou antigo (ex: `"ABC1234"`).
+    </ParamField>
+    <ParamField body="rntrc" type="string" required>
+      Registro Nacional de Transportadores Rodoviários de Cargas (RNTRC) da transportadora, com 8 dígitos.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="motorista" type="object" required>
+  Dados do motorista responsável pela viagem.
+
+  <Expandable title="Propriedades do motorista">
+    <ParamField body="nome" type="string" required>
+      Nome completo do motorista.
+    </ParamField>
+    <ParamField body="cpf" type="string" required>
+      CPF do motorista (somente dígitos, 11 caracteres).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="uf_inicio" type="string" required>
+  Sigla do estado de início da viagem (2 caracteres). Exemplo: `"PR"`.
+</ParamField>
+
+<ParamField body="uf_fim" type="string" required>
+  Sigla do estado de destino final da viagem (2 caracteres). Exemplo: `"SP"`.
+</ParamField>
+
+<ParamField body="ctes" type="array of strings" required>
+  Lista de IDs (UUID) ou chaves de acesso (44 dígitos) dos CT-es autorizados que compõem a carga desta viagem. Mínimo de 1 item.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request POST \
+  --url "https://api.brudam.com.br/v1/mdfe" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "veiculo": {
+      "placa": "ABC1D23",
+      "rntrc": "12345678"
+    },
+    "motorista": {
+      "nome": "Carlos Eduardo Souza",
+      "cpf": "12345678901"
+    },
+    "uf_inicio": "PR",
+    "uf_fim": "SP",
+    "ctes": [
+      "e5d4c3b2-a1f0-9e8d-7c6b-5a4f3e2d1c0b",
+      "f6e5d4c3-b2a1-0f9e-8d7c-6b5a4f3e2d1c"
+    ]
+  }'
+```
+
+### Resposta
+
+<ResponseField name="id" type="string (UUID)">
+  Identificador único do MDF-e no Brudam TMS.
+</ResponseField>
+
+<ResponseField name="numero_mdfe" type="string">
+  Número sequencial do MDF-e emitido.
+</ResponseField>
+
+<ResponseField name="chave_acesso" type="string">
+  Chave de acesso de 44 dígitos gerada após a transmissão à SEFAZ.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Status imediatamente após a emissão: `em_processamento`. Após a resposta da SEFAZ, o status será atualizado para `autorizado` ou `erro`.
+</ResponseField>
+
+<ResponseField name="damdfe_url" type="string">
+  URL para download do DAMDFE (PDF do manifesto). Disponível após a autorização.
+</ResponseField>
+
+```json Exemplo de resposta (201 Created)
+{
+  "id": "11223344-5566-7788-99aa-bbccddeeff00",
+  "numero_mdfe": "000000015",
+  "chave_acesso": "41240711222333000181580010000000151000000158",
+  "status": "em_processamento",
+  "damdfe_url": null,
+  "criado_em": "2024-07-11T07:45:00-03:00"
+}
+```
+
+---
+
+## Consultar MDF-e
+
+Retorna os dados completos de um MDF-e, incluindo status de autorização, veículo, motorista e relação de CT-es manifestados.
+
+**`GET /v1/mdfe/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string (UUID)" required>
+  Identificador único do MDF-e no Brudam TMS.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request GET \
+  --url "https://api.brudam.com.br/v1/mdfe/11223344-5566-7788-99aa-bbccddeeff00" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Accept: application/json"
+```
+
+### Resposta
+
+<ResponseField name="id" type="string (UUID)">
+  Identificador único do MDF-e.
+</ResponseField>
+
+<ResponseField name="numero_mdfe" type="string">
+  Número sequencial do MDF-e.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Status atual do MDF-e: `autorizado`, `encerrado` ou `cancelado`.
+</ResponseField>
+
+<ResponseField name="veiculo" type="object">
+  Dados do veículo vinculado ao manifesto.
+
+  <Expandable title="Propriedades do veículo">
+    <ResponseField name="placa" type="string">
+      Placa do veículo.
+    </ResponseField>
+    <ResponseField name="rntrc" type="string">
+      RNTRC da transportadora.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="motorista" type="object">
+  Dados do motorista vinculado ao manifesto.
+
+  <Expandable title="Propriedades do motorista">
+    <ResponseField name="nome" type="string">
+      Nome completo do motorista.
+    </ResponseField>
+    <ResponseField name="cpf" type="string">
+      CPF do motorista (mascarado).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="ctes" type="array">
+  Lista de chaves de acesso dos CT-es manifestados.
+</ResponseField>
+
+<ResponseField name="uf_inicio" type="string">
+  Estado de início da viagem.
+</ResponseField>
+
+<ResponseField name="uf_fim" type="string">
+  Estado de destino final da viagem.
+</ResponseField>
+
+```json Exemplo de resposta (200 OK)
+{
+  "id": "11223344-5566-7788-99aa-bbccddeeff00",
+  "numero_mdfe": "000000015",
+  "chave_acesso": "41240711222333000181580010000000151000000158",
+  "status": "autorizado",
+  "veiculo": {
+    "placa": "ABC1D23",
+    "rntrc": "12345678"
+  },
+  "motorista": {
+    "nome": "Carlos Eduardo Souza",
+    "cpf": "123.456.789-**"
+  },
+  "ctes": [
+    "41240711222333000181570010000000421000000428",
+    "41240711222333000181570010000000431000000431"
+  ],
+  "uf_inicio": "PR",
+  "uf_fim": "SP",
+  "damdfe_url": "https://api.brudam.com.br/v1/mdfe/11223344-5566-7788-99aa-bbccddeeff00/damdfe",
+  "criado_em": "2024-07-11T07:45:00-03:00",
+  "autorizado_em": "2024-07-11T07:45:18-03:00"
+}
+```
+
+---
+
+## Encerrar MDF-e
+
+Encerra um MDF-e autorizado ao final da viagem, informando o município e estado onde o transporte foi concluído. **O encerramento é obrigatório por lei** ao término de cada viagem interestadual ou intermunicipal.
+
+**`POST /v1/mdfe/{id}/encerrar`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string (UUID)" required>
+  Identificador único do MDF-e a ser encerrado.
+</ParamField>
+
+### Corpo da requisição
+
+<ParamField body="uf_encerramento" type="string" required>
+  Sigla do estado onde a viagem foi encerrada (2 caracteres). Exemplo: `"SP"`.
+</ParamField>
+
+<ParamField body="municipio_encerramento" type="string" required>
+  Nome do município onde a viagem foi encerrada. Exemplo: `"São Paulo"`.
+</ParamField>
+
+<ParamField body="data_encerramento" type="string (ISO datetime)" required>
+  Data e hora do encerramento em formato ISO 8601. Exemplo: `"2024-07-11T18:30:00-03:00"`.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request POST \
+  --url "https://api.brudam.com.br/v1/mdfe/11223344-5566-7788-99aa-bbccddeeff00/encerrar" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "uf_encerramento": "SP",
+    "municipio_encerramento": "São Paulo",
+    "data_encerramento": "2024-07-11T18:30:00-03:00"
+  }'
+```
+
+```json Exemplo de resposta (200 OK)
+{
+  "id": "11223344-5566-7788-99aa-bbccddeeff00",
+  "numero_mdfe": "000000015",
+  "status": "encerrado",
+  "uf_encerramento": "SP",
+  "municipio_encerramento": "São Paulo",
+  "encerrado_em": "2024-07-11T18:30:00-03:00"
+}
+```
+
+---
+
+## Cancelar MDF-e
+
+Cancela um MDF-e autorizado. **O cancelamento só é permitido antes da saída do veículo** — ou seja, enquanto a viagem ainda não tiver sido iniciada. Após o início do transporte, utilize o encerramento.
+
+**`DELETE /v1/mdfe/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string (UUID)" required>
+  Identificador único do MDF-e a ser cancelado.
+</ParamField>
+
+### Corpo da requisição
+
+<ParamField body="justificativa" type="string" required>
+  Motivo do cancelamento do manifesto. Mínimo de 15 caracteres, conforme exigência da SEFAZ.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request DELETE \
+  --url "https://api.brudam.com.br/v1/mdfe/11223344-5566-7788-99aa-bbccddeeff00" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "justificativa": "Viagem cancelada antes da saída do veículo por alteração de rota."
+  }'
+```
+
+```json Exemplo de resposta (200 OK)
+{
+  "id": "11223344-5566-7788-99aa-bbccddeeff00",
+  "numero_mdfe": "000000015",
+  "status": "cancelado",
+  "cancelado_em": "2024-07-11T08:15:00-03:00",
+  "justificativa": "Viagem cancelada antes da saída do veículo por alteração de rota."
+}
+```

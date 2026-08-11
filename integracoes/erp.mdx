@@ -1,0 +1,70 @@
+---
+title: "Integrar o Brudam TMS com ERP: SAP, TOTVS e Bling"
+sidebarTitle: "ERP"
+description: "Conecte o Brudam TMS ao seu ERP SAP, TOTVS ou Bling para sincronizar pedidos, emitir documentos fiscais e automatizar o fluxo logístico."
+---
+
+O Brudam TMS integra-se nativamente com os principais ERPs utilizados por transportadoras brasileiras — SAP, TOTVS e Bling — eliminando a reentrada manual de dados e mantendo suas informações de frete e financeiras sempre sincronizadas.
+
+## ERP suportados
+
+<CardGroup cols={3}>
+  <Card title="SAP" icon="building">
+    Pedidos de venda, NF-e e faturamento — sincronizados diretamente entre o SAP e o Brudam TMS.
+  </Card>
+  <Card title="TOTVS Protheus" icon="building-columns">
+    Pedidos, CT-e e módulo financeiro integrados ao Protheus para um fluxo logístico completo.
+  </Card>
+  <Card title="Bling" icon="store">
+    Pedidos de venda, NF-e e rastreamento de encomendas conectados ao Bling de forma automática.
+  </Card>
+</CardGroup>
+
+## Como funciona a integração
+
+O fluxo de integração entre o Brudam TMS e o seu ERP segue as seguintes etapas:
+
+1. **Recebimento de pedidos ou NF-e** — O Brudam recebe os pedidos ou notas fiscais do ERP via API ou EDI, sem nenhuma digitação manual.
+2. **Geração automática do CT-e** — Com base nas informações da NF-e recebida, o Brudam gera automaticamente o Conhecimento de Transporte Eletrônico (CT-e) vinculado à nota.
+3. **Retorno ao ERP** — O Brudam devolve ao ERP o status de autorização do CT-e, as atualizações de rastreamento da entrega e o NFS-e emitido, mantendo os dois sistemas sempre atualizados.
+
+## Configurar a integração ERP
+
+<Steps>
+  <Step title="Acesse as configurações de integração">
+    No menu principal, navegue até **Configurações > Integrações > ERP**.
+  </Step>
+  <Step title="Selecione o seu ERP">
+    Escolha o sistema que você utiliza: **SAP**, **TOTVS** ou **Bling**.
+  </Step>
+  <Step title="Informe as credenciais de acesso">
+    Preencha as credenciais de acesso ao ERP fornecidas pelo administrador do sistema (URL do servidor, usuário, senha e token, conforme o sistema).
+  </Step>
+  <Step title="Configure os mapeamentos de campos">
+    Defina os mapeamentos de campos necessários para a sua operação, incluindo **CFOP**, **CSOSN** e **centro de custo**, garantindo que os dados trafeguem corretamente entre os dois sistemas.
+  </Step>
+  <Step title="Teste a conexão">
+    Clique no botão **"Testar Integração"** para validar as credenciais e confirmar que a comunicação com o ERP está funcionando corretamente.
+  </Step>
+  <Step title="Ative a sincronização automática">
+    Com a conexão validada, ative a **sincronização automática** para que pedidos, NF-e e CT-e sejam trocados em tempo real entre os sistemas.
+  </Step>
+</Steps>
+
+## Integração via API para outros ERPs
+
+Caso você utilize um ERP que não consta na lista de integrações nativas do Brudam, é possível realizar a integração por meio da **Brudam REST API**. Com ela, você pode:
+
+- Enviar pedidos e NF-e diretamente para o Brudam a partir do seu ERP
+- Consultar o status de autorização e rastreamento de CT-e em tempo real
+- Automatizar qualquer ponto do fluxo logístico e financeiro
+
+Para começar, consulte a documentação completa da API:
+
+<Card title="Referência da API Brudam" icon="code" href="/api-reference/introducao">
+  Acesse os endpoints disponíveis, exemplos de requisição e guias de autenticação.
+</Card>
+
+<Note>
+  A integração com ERP está disponível nos planos **Profissional** e **Enterprise**. Faça upgrade do seu plano para habilitar essa funcionalidade.
+</Note>

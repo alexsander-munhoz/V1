@@ -1,0 +1,100 @@
+---
+title: "Códigos de erro da API Brudam TMS e como resolvê-los"
+sidebarTitle: "Erros"
+description: "Referência completa dos códigos de status HTTP e erros da API Brudam TMS, com causas e ações de correção para cada código."
+---
+
+A API Brudam utiliza os códigos de status HTTP padrão para indicar o resultado de cada requisição. As respostas de erro incluem sempre um corpo JSON com um código legível por máquina (`erro`) e uma mensagem descritiva (`mensagem`), facilitando o diagnóstico e a correção de problemas de forma ágil.
+
+## Formato de resposta de erro
+
+Todo erro retornado pela API segue a estrutura abaixo. O campo `detalhes` é opcional e aparece quando o problema está associado a campos específicos do payload.
+
+```json
+{
+  "erro": "DESTINATARIO_NAO_ENCONTRADO",
+  "mensagem": "O CNPJ 00.000.000/0001-00 não foi encontrado no cadastro de clientes.",
+  "detalhes": [
+    {
+      "campo": "destinatario.cnpj",
+      "problema": "CNPJ não cadastrado"
+    }
+  ]
+}
+```
+
+## Códigos HTTP
+
+| Código | Nome | Significado |
+|---|---|---|
+| `200` | OK | Requisição processada com sucesso |
+| `201` | Created | Recurso criado com sucesso |
+| `400` | Bad Request | Dados da requisição inválidos — verifique o campo `detalhes` |
+| `401` | Unauthorized | Token ausente, inválido ou expirado |
+| `403` | Forbidden | Token não tem permissão para esta operação |
+| `404` | Not Found | Recurso não encontrado |
+| `409` | Conflict | Recurso já existe (ex: CT-e duplicado) |
+| `422` | Unprocessable Entity | Regra de negócio violada (ex: CT-e já autorizado não pode ser alterado) |
+| `429` | Too Many Requests | Limite de requisições atingido — aguarde antes de tentar novamente |
+| `500` | Internal Server Error | Erro interno — tente novamente; se persistir, contate o suporte |
+
+## Erros comuns e soluções
+
+<AccordionGroup>
+  <Accordion title="401 Unauthorized — token expirado ou inválido">
+    **Causa:** O token JWT enviado no cabeçalho `Authorization` está ausente, malformado ou expirou após 24 horas.
+
+    **Solução:**
+    1. Acesse **Configurações → Integrações → Chaves de API** no painel Brudam ([app.brudam.com.br](https://app.brudam.com.br)).
+    2. Gere um novo token para a chave correspondente.
+    3. Substitua o token na sua integração e repita a requisição.
+
+    Para evitar interrupções, implemente uma rotina que renove o token automaticamente antes do vencimento.
+  </Accordion>
+
+  <Accordion title="400 CNPJ_INVALIDO — formato de CNPJ incorreto">
+    **Causa:** O CNPJ enviado no payload contém caracteres inválidos, está com número de dígitos incorreto ou não passou na validação do dígito verificador.
+
+    **Solução:** Envie o CNPJ contendo **apenas números**, sem pontos, barras ou hífens, com exatamente **14 dígitos**.
+
+    ```json
+    // ❌ Incorreto
+    { "cnpj": "00.000.000/0001-00" }
+
+    // ✅ Correto
+    { "cnpj": "00000000000100" }
+    ```
+  </Accordion>
+
+  <Accordion title="422 CTE_JA_AUTORIZADO — CT-e já autorizado não pode ser alterado">
+    **Causa:** Você tentou modificar um CT-e que já foi autorizado pela SEFAZ. Documentos fiscais autorizados são imutáveis por força legal.
+
+    **Solução:** Você tem duas opções:
+    - **Carta de Correção Eletrônica (CC-e):** utilize o endpoint de CC-e para corrigir informações que o fisco permite ajustar.
+    - **Cancelamento:** cancele o CT-e dentro do prazo de **24 horas** após a autorização e emita um novo documento com os dados corretos.
+  </Accordion>
+
+  <Accordion title="429 Too Many Requests — limite de requisições atingido">
+    **Causa:** Sua integração ultrapassou o limite de requisições por minuto do seu plano. Consulte a tabela em [Limites de requisições](/api-reference/introducao#limites-de-requisicoes-rate-limiting).
+
+    **Solução:** Implemente **exponential backoff** na sua integração:
+    1. Ao receber um `429`, leia o cabeçalho `Retry-After` para saber quantos segundos aguardar.
+    2. Aguarde o tempo indicado antes de tentar novamente.
+    3. A cada nova tentativa sem sucesso, dobre o tempo de espera (ex: 1s → 2s → 4s → 8s).
+
+    Se o limite for atingido com frequência, considere fazer upgrade de plano em [Planos e Preços](/planos-e-precos).
+  </Accordion>
+
+  <Accordion title="409 DOCUMENTO_DUPLICADO — documento com esta chave já existe">
+    **Causa:** Você tentou criar um recurso cuja chave única (ex: número do CT-e, chave de acesso NFe) já existe na base de dados Brudam.
+
+    **Solução:**
+    1. Verifique se a requisição não está sendo enviada mais de uma vez (ex: por retry automático sem idempotência).
+    2. Consulte o recurso existente com uma requisição `GET` antes de tentar criar novamente.
+    3. Se o documento existente for inválido, cancele-o antes de criar um novo.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+  Registre o campo `erro` (e não apenas o código HTTP) nos logs da sua integração. O valor de `erro` é um identificador **estável entre versões da API**, o que facilita o diagnóstico automatizado de falhas e a criação de alertas específicos por tipo de problema.
+</Tip>

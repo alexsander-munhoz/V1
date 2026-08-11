@@ -1,0 +1,78 @@
+---
+title: "Documentos fiscais no Brudam TMS: CT-e, MDF-e e mais"
+sidebarTitle: "Documentos Fiscais"
+description: "Conheça os documentos fiscais suportados pelo Brudam TMS: CT-e, MDF-e, NF-e, NFS-e e CIOT, com validação automática no SEFAZ."
+---
+
+O Brudam TMS automatiza a emissão e o gerenciamento de todos os documentos fiscais exigidos para o transporte de carga no Brasil. Antes de qualquer transmissão ao SEFAZ, a plataforma executa uma pré-validação completa dos dados, identificando e bloqueando erros comuns que causariam rejeição — economizando tempo e evitando multas por documentos inválidos em trânsito.
+
+## Documentos suportados
+
+<AccordionGroup>
+  <Accordion title="CT-e — Conhecimento de Transporte Eletrônico" icon="file-invoice-dollar">
+    O CT-e é o documento fiscal principal do transporte rodoviário de cargas, obrigatório para todas as operações de transporte remunerado. No Brudam TMS, o CT-e é validado e transmitido ao SEFAZ em tempo real, com retorno do status de autorização diretamente no painel.
+
+    **Funcionalidades incluídas:**
+    - Emissão, cancelamento e carta de correção (CC-e)
+    - Registro de eventos: entrega, ocorrência, encerramento
+    - Suporte ao **Evento 110190** (registro de insucesso de entrega), obrigatório a partir de 2026
+    - Download do DACTE em PDF para envio ao tomador do serviço
+    - Consulta ao SEFAZ e reprocessamento automático em caso de timeout
+  </Accordion>
+
+  <Accordion title="MDF-e — Manifesto de Documentos Fiscais Eletrônico" icon="clipboard-list">
+    O MDF-e é obrigatório quando uma mesma viagem movimenta múltiplos CT-es ou NF-es entre estados. O Brudam TMS gera o MDF-e automaticamente a partir dos dados da viagem ou roteiro cadastrado, vinculando os documentos e o veículo correspondente.
+
+    **Funcionalidades incluídas:**
+    - Geração automática a partir dos dados da operação
+    - Inclusão e exclusão de condutores durante a viagem
+    - Encerramento do MDF-e ao registrar a chegada no destino
+    - Suporte a MDF-e para transporte de carga própria (CT-e de carga própria)
+  </Accordion>
+
+  <Accordion title="NF-e — Nota Fiscal Eletrônica" icon="file-lines">
+    O Brudam TMS suporta o recebimento e a referência de NF-es emitidas pelos seus clientes (embarcadores), vinculando a mercadoria transportada ao CT-e correspondente. Isso garante rastreabilidade completa entre o documento fiscal da mercadoria e o do transporte.
+
+    **Funcionalidades incluídas:**
+    - Importação de NF-e via XML ou chave de acesso
+    - Vinculação automática ao CT-e durante a emissão
+    - Consulta de situação da NF-e no SEFAZ
+    - Armazenamento dos XMLs para auditoria e conciliação
+  </Accordion>
+
+  <Accordion title="NFS-e — Nota Fiscal de Serviços Eletrônica" icon="receipt">
+    A NFS-e é a nota fiscal de serviços emitida pela transportadora ao tomador do frete para fins de faturamento. O Brudam TMS integra-se diretamente às prefeituras dos principais municípios brasileiros para emissão automática após a confirmação de entrega.
+
+    **Funcionalidades incluídas:**
+    - Emissão integrada com prefeituras municipais
+    - Configuração de alíquotas de ISS por município
+    - Geração em lote ao fechar o período de faturamento
+    - Download do PDF e XML para envio ao cliente
+  </Accordion>
+
+  <Accordion title="CIOT — Certificado Internacional de Operador de Transporte" icon="id-card">
+    O CIOT é exigido pela ANTT para toda operação em que o frete é pago a Transportadores Autônomos de Cargas (TAC). No Brudam TMS, o CIOT é gerado e enviado automaticamente ao registrar uma viagem com motorista autônomo, garantindo conformidade com a legislação vigente.
+
+    **Funcionalidades incluídas:**
+    - Geração automática ao vincular motorista TAC à viagem
+    - Transmissão à ANTT via integração direta
+    - Associação ao CT-e e MDF-e da operação
+    - Histórico de CIOTs emitidos por motorista e período
+  </Accordion>
+</AccordionGroup>
+
+## Pré-validação automática
+
+Antes de transmitir qualquer documento ao SEFAZ, o Brudam TMS executa um conjunto de verificações automáticas para garantir que os dados estejam corretos. Os erros mais comuns detectados nessa etapa incluem:
+
+- **CNPJ inválido ou não cadastrado** no remetente, destinatário ou tomador
+- **CFOP incorreto** para o tipo de operação ou UF de destino
+- **Peso ou cubagem** inconsistentes com os dados da NF-e vinculada
+- **Valor do frete** em desacordo com a tabela de preços configurada
+- **Dados do veículo ou motorista** ausentes ou com formato inválido
+
+Ao identificar um problema, o sistema exibe uma mensagem clara com o campo específico que precisa de correção — sem rejeitar o documento no SEFAZ e sem gerar multas ou pendências fiscais.
+
+<Warning>
+  O **Evento 110190** (registro de insucesso de entrega no CT-e) passa a ser **obrigatório em 2026** para todas as transportadoras. O Brudam TMS já suporta esse evento: basta registrar a ocorrência de insucesso pelo app do motorista ou pelo painel, e o evento é transmitido automaticamente ao SEFAZ.
+</Warning>

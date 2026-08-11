@@ -1,0 +1,92 @@
+---
+title: "Integração bancária e pagamentos no Brudam TMS"
+sidebarTitle: "Bancos & Pagamentos"
+description: "Configure boleto bancário, PIX e conciliação automática no Brudam TMS com suporte a mais de 15 bancos brasileiros."
+---
+
+O Brudam TMS integra-se a mais de 15 bancos brasileiros para gerar boletos, receber pagamentos via PIX e conciliar automaticamente os seus recebíveis de frete — eliminando o processamento manual de extratos bancários e reduzindo erros operacionais.
+
+## Boleto bancário
+
+O Brudam TMS gerencia todo o ciclo de vida do boleto bancário diretamente pela plataforma:
+
+- **Geração e registro automático** — O Brudam gera e registra os boletos diretamente no seu banco via API bancária, sem a necessidade de acessar o internet banking.
+- **Envio ao cliente** — O boleto é enviado automaticamente ao cliente por e-mail ou anexado ao NFS-e no momento da emissão.
+- **Conciliação automática** — Quando o banco confirma o pagamento, o Brudam baixa o título e atualiza o financeiro sem nenhuma ação manual.
+
+### Configurar boleto bancário
+
+<Steps>
+  <Step title="Acesse as configurações bancárias">
+    Navegue até **Configurações > Financeiro > Bancos** e clique em **Adicionar Banco**.
+  </Step>
+  <Step title="Informe os dados da conta">
+    Preencha os dados da sua conta bancária: banco, agência, número da conta e carteira de cobrança.
+  </Step>
+  <Step title="Informe as credenciais da API bancária">
+    Insira as credenciais fornecidas pelo setor de EDI/API do seu banco (client ID, client secret, certificado digital, conforme o banco).
+  </Step>
+  <Step title="Teste a conexão">
+    Clique em **"Testar Conexão"** para validar as credenciais e confirmar que o Brudam consegue se comunicar com o banco.
+  </Step>
+  <Step title="Ative a integração">
+    Com a conexão validada, ative a integração para que os boletos passem a ser registrados e conciliados automaticamente.
+  </Step>
+</Steps>
+
+## PIX
+
+O Brudam TMS suporta recebimento de pagamentos via PIX com geração de QR Code dinâmico por fatura:
+
+- **QR Code dinâmico por fatura** — Cada NFS-e ou fatura emitida ganha um QR Code PIX único, com valor e vencimento já preenchidos.
+- **Confirmação instantânea** — O pagamento é confirmado em tempo real pelo banco e o título é baixado automaticamente.
+- **Conciliação automática** — Assim como no boleto, os recebimentos PIX são conciliados sem intervenção manual.
+
+### Configurar PIX
+
+Navegue até **Configurações > Financeiro > PIX** e informe a sua chave PIX: **CNPJ** ou **chave aleatória**. O Brudam validará a chave junto ao banco e ativará a geração automática de QR Codes.
+
+## Bancos suportados
+
+O Brudam TMS oferece integração homologada com os principais bancos do Brasil:
+
+<CardGroup cols={2}>
+  <Card title="Banco do Brasil" icon="landmark" />
+  <Card title="Bradesco" icon="landmark" />
+  <Card title="Itaú" icon="landmark" />
+  <Card title="Santander" icon="landmark" />
+  <Card title="Caixa Econômica Federal" icon="landmark" />
+  <Card title="Sicredi" icon="landmark" />
+  <Card title="Sicoob" icon="landmark" />
+  <Card title="Banrisul" icon="landmark" />
+</CardGroup>
+
+Além desses, o Brudam suporta **mais de 15 bancos** no total, incluindo bancos digitais e instituições regionais. Consulte o time de implantação para verificar a disponibilidade do seu banco.
+
+## Conciliação automática
+
+O Brudam TMS importa o extrato bancário nos formatos **OFX** e **CNAB 240** e realiza o cruzamento automático dos pagamentos recebidos com os títulos em aberto. O processo funciona da seguinte forma:
+
+1. O extrato é importado manualmente ou recebido automaticamente via API bancária
+2. O Brudam compara cada lançamento com os títulos em aberto por valor, data e identificador
+3. Os títulos liquidados são baixados automaticamente
+4. As transações não reconhecidas são sinalizadas para **revisão manual**, com alertas na tela financeira
+
+Isso garante que o seu contas a receber esteja sempre atualizado e que eventuais divergências sejam identificadas rapidamente.
+
+## Relatórios financeiros
+
+O Brudam TMS disponibiliza relatórios financeiros completos para a gestão da sua transportadora:
+
+| Relatório | Descrição |
+|---|---|
+| **Contas a receber por vencimento** | Visão de todos os títulos abertos agrupados por data de vencimento |
+| **Fluxo de caixa** | Entradas e saídas previstas e realizadas por período |
+| **Extrato por cliente** | Histórico de faturas, pagamentos e saldo de cada cliente |
+| **Comissões de vendedores** | Apuração automática de comissões com base nas entregas realizadas |
+
+Acesse os relatórios em **Financeiro > Relatórios** e filtre por período, cliente ou banco.
+
+<Note>
+  A configuração da integração bancária requer as **credenciais de API ou certificado de homologação** fornecidos pelo seu banco. Entre em contato com o setor de EDI/API da sua instituição bancária para obtê-los antes de iniciar a configuração no Brudam TMS.
+</Note>

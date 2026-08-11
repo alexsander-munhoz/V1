@@ -1,0 +1,308 @@
+---
+title: "API de CT-e: emitir e consultar Conhecimentos de Transporte"
+sidebarTitle: "CT-e"
+description: "Endpoints para emissão, consulta, cancelamento e eventos de CT-e (Conhecimento de Transporte Eletrônico) via API Brudam TMS."
+---
+
+A emissão de CT-e via API é a integração central para transportadoras que precisam enviar documentos fiscais de frete à SEFAZ por meio do Brudam TMS. O fluxo padrão consiste em emitir o CT-e, aguardar a autorização assíncrona (geralmente em segundos) e, em seguida, consultar o status ou configurar um webhook para receber a notificação automaticamente. Todos os endpoints exigem autenticação via Bearer Token no cabeçalho `Authorization`.
+
+---
+
+## Emitir CT-e
+
+Solicita a emissão de um Conhecimento de Transporte Eletrônico. O documento é enviado ao ambiente da SEFAZ correspondente (produção ou homologação, conforme configuração da conta) e retorna imediatamente com status `em_processamento`. Use o endpoint de consulta ou webhooks para acompanhar a autorização.
+
+**`POST /v1/cte`**
+
+### Corpo da requisição
+
+<ParamField body="remetente" type="object" required>
+  Dados do remetente (expedidor da carga).
+
+  <Expandable title="Propriedades do remetente">
+    <ParamField body="nome" type="string" required>
+      Razão social ou nome do remetente.
+    </ParamField>
+    <ParamField body="cnpj" type="string" required>
+      CNPJ do remetente (somente dígitos).
+    </ParamField>
+    <ParamField body="endereco" type="object" required>
+      Endereço completo do remetente (logradouro, numero, cidade, uf, cep).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="destinatario" type="object" required>
+  Dados do destinatário (recebedor da carga).
+
+  <Expandable title="Propriedades do destinatário">
+    <ParamField body="nome" type="string" required>
+      Razão social ou nome do destinatário.
+    </ParamField>
+    <ParamField body="cnpj" type="string" required>
+      CNPJ do destinatário (somente dígitos).
+    </ParamField>
+    <ParamField body="endereco" type="object" required>
+      Endereço completo do destinatário (logradouro, numero, cidade, uf, cep).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="tomador" type="string" required>
+  Indica quem é o responsável pelo pagamento do frete. Valores aceitos: `remetente`, `destinatario`, `terceiro`.
+</ParamField>
+
+<ParamField body="cfop" type="string" required>
+  Código Fiscal de Operações e Prestações aplicável ao serviço de transporte. Exemplo: `"6351"` (prestação de serviço de transporte interestadual).
+</ParamField>
+
+<ParamField body="valor_prestacao" type="decimal" required>
+  Valor do serviço de frete em BRL (base de cálculo do CT-e).
+</ParamField>
+
+<ParamField body="peso_kg" type="decimal" required>
+  Peso total da carga transportada em quilogramas.
+</ParamField>
+
+<ParamField body="volumes" type="integer" required>
+  Quantidade de volumes (volumes, caixas, paletes) transportados.
+</ParamField>
+
+<ParamField body="notas_fiscais" type="array of strings">
+  Lista de chaves de acesso das NF-es que acompanham a carga (44 dígitos cada). Obrigatório quando a carga possui documentos fiscais vinculados.
+</ParamField>
+
+<ParamField body="modal" type="string" required>
+  Modal de transporte utilizado. Valores aceitos: `rodoviario`, `aereo`.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request POST \
+  --url "https://api.brudam.com.br/v1/cte" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "remetente": {
+      "nome": "Indústria Central S/A",
+      "cnpj": "11222333000181",
+      "endereco": {
+        "logradouro": "Rodovia BR-116",
+        "numero": "5000",
+        "cidade": "Curitiba",
+        "uf": "PR",
+        "cep": "81690300"
+      }
+    },
+    "destinatario": {
+      "nome": "Comércio Paulista Ltda.",
+      "cnpj": "12345678000195",
+      "endereco": {
+        "logradouro": "Rua das Acácias",
+        "numero": "452",
+        "cidade": "São Paulo",
+        "uf": "SP",
+        "cep": "01310100"
+      }
+    },
+    "tomador": "remetente",
+    "cfop": "6351",
+    "valor_prestacao": 450.00,
+    "peso_kg": 38.5,
+    "volumes": 4,
+    "notas_fiscais": ["35240112345678000195550010000012341234567890"],
+    "modal": "rodoviario"
+  }'
+```
+
+### Resposta
+
+<ResponseField name="id" type="string (UUID)">
+  Identificador interno do CT-e no Brudam TMS.
+</ResponseField>
+
+<ResponseField name="numero_cte" type="string">
+  Número sequencial do CT-e emitido pela transportadora.
+</ResponseField>
+
+<ResponseField name="chave_acesso" type="string">
+  Chave de acesso de 44 dígitos do CT-e, gerada após a transmissão à SEFAZ.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Status do CT-e imediatamente após a emissão: `em_processamento`. Após a resposta da SEFAZ, o status será atualizado para `autorizado`, `denegado` ou `erro`.
+</ResponseField>
+
+<ResponseField name="danfe_url" type="string">
+  URL para download do DACTE (PDF) gerado automaticamente pelo Brudam. Disponível após a autorização.
+</ResponseField>
+
+```json Exemplo de resposta (201 Created)
+{
+  "id": "e5d4c3b2-a1f0-9e8d-7c6b-5a4f3e2d1c0b",
+  "numero_cte": "000000042",
+  "chave_acesso": "41240711222333000181570010000000421000000428",
+  "status": "em_processamento",
+  "danfe_url": null,
+  "criado_em": "2024-07-11T10:00:00-03:00"
+}
+```
+
+---
+
+## Consultar CT-e
+
+Retorna os dados completos de um CT-e, incluindo status de autorização da SEFAZ, URLs do XML e do DACTE.
+
+**`GET /v1/cte/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string (UUID)" required>
+  Identificador único do CT-e no Brudam TMS.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request GET \
+  --url "https://api.brudam.com.br/v1/cte/e5d4c3b2-a1f0-9e8d-7c6b-5a4f3e2d1c0b" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Accept: application/json"
+```
+
+### Resposta
+
+<ResponseField name="id" type="string (UUID)">
+  Identificador único do CT-e no Brudam TMS.
+</ResponseField>
+
+<ResponseField name="numero_cte" type="string">
+  Número sequencial do CT-e.
+</ResponseField>
+
+<ResponseField name="chave_acesso" type="string">
+  Chave de acesso de 44 dígitos.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Status atual do CT-e: `autorizado`, `cancelado` ou `denegado`.
+</ResponseField>
+
+<ResponseField name="xml_url" type="string">
+  URL para download do XML autorizado do CT-e.
+</ResponseField>
+
+<ResponseField name="danfe_url" type="string">
+  URL para download do DACTE em PDF.
+</ResponseField>
+
+```json Exemplo de resposta (200 OK)
+{
+  "id": "e5d4c3b2-a1f0-9e8d-7c6b-5a4f3e2d1c0b",
+  "numero_cte": "000000042",
+  "chave_acesso": "41240711222333000181570010000000421000000428",
+  "status": "autorizado",
+  "modal": "rodoviario",
+  "cfop": "6351",
+  "valor_prestacao": 450.00,
+  "tomador": "remetente",
+  "xml_url": "https://api.brudam.com.br/v1/cte/e5d4c3b2-a1f0-9e8d-7c6b-5a4f3e2d1c0b/xml",
+  "danfe_url": "https://api.brudam.com.br/v1/cte/e5d4c3b2-a1f0-9e8d-7c6b-5a4f3e2d1c0b/danfe",
+  "criado_em": "2024-07-11T10:00:00-03:00",
+  "autorizado_em": "2024-07-11T10:00:14-03:00"
+}
+```
+
+---
+
+## Cancelar CT-e
+
+Solicita o cancelamento de um CT-e autorizado junto à SEFAZ. **Na maioria dos estados, o cancelamento só é permitido dentro de 24 horas após a autorização** e desde que não haja MDF-e encerrado vinculado ao documento. Verifique a legislação do estado emitente antes de prosseguir.
+
+**`DELETE /v1/cte/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string (UUID)" required>
+  Identificador único do CT-e a ser cancelado.
+</ParamField>
+
+### Corpo da requisição
+
+<ParamField body="justificativa" type="string" required>
+  Motivo do cancelamento. Mínimo de 15 caracteres, conforme exigência da SEFAZ.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request DELETE \
+  --url "https://api.brudam.com.br/v1/cte/e5d4c3b2-a1f0-9e8d-7c6b-5a4f3e2d1c0b" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "justificativa": "Emissão em duplicidade. CT-e substituto emitido corretamente."
+  }'
+```
+
+```json Exemplo de resposta (200 OK)
+{
+  "id": "e5d4c3b2-a1f0-9e8d-7c6b-5a4f3e2d1c0b",
+  "numero_cte": "000000042",
+  "chave_acesso": "41240711222333000181570010000000421000000428",
+  "status": "cancelado",
+  "cancelado_em": "2024-07-11T11:30:00-03:00",
+  "justificativa": "Emissão em duplicidade. CT-e substituto emitido corretamente."
+}
+```
+
+---
+
+## Registrar evento
+
+Registra um evento no CT-e, como insucesso de entrega ou outras ocorrências previstas no leiaute da SEFAZ. O evento é transmitido eletronicamente e vinculado à chave de acesso do CT-e.
+
+**`POST /v1/cte/{id}/eventos`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string (UUID)" required>
+  Identificador único do CT-e ao qual o evento será vinculado.
+</ParamField>
+
+### Corpo da requisição
+
+<ParamField body="tipo_evento" type="string" required>
+  Código do tipo de evento conforme tabela da SEFAZ. Exemplo: `"110190"` para Insucesso na Entrega do CT-e.
+</ParamField>
+
+<ParamField body="motivo" type="string" required>
+  Descrição textual do motivo do evento. Mínimo de 15 caracteres.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request POST \
+  --url "https://api.brudam.com.br/v1/cte/e5d4c3b2-a1f0-9e8d-7c6b-5a4f3e2d1c0b/eventos" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "tipo_evento": "110190",
+    "motivo": "Destinatário ausente no momento da entrega. Nova tentativa agendada para o próximo dia útil."
+  }'
+```
+
+```json Exemplo de resposta (201 Created)
+{
+  "id": "f1a2b3c4-d5e6-7890-abcd-ef0123456789",
+  "cte_id": "e5d4c3b2-a1f0-9e8d-7c6b-5a4f3e2d1c0b",
+  "tipo_evento": "110190",
+  "descricao_evento": "Insucesso na Entrega do CT-e",
+  "motivo": "Destinatário ausente no momento da entrega. Nova tentativa agendada para o próximo dia útil.",
+  "status": "registrado",
+  "registrado_em": "2024-07-15T16:10:00-03:00"
+}
+```

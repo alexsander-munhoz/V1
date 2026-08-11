@@ -1,0 +1,86 @@
+---
+title: "Rastreamento de frota e entregas em tempo real no Brudam TMS"
+sidebarTitle: "Rastreamento"
+description: "Monitore sua frota e acompanhe o status de cada entrega em tempo real com o mapa interativo e alertas automáticos do Brudam TMS."
+---
+
+O Brudam TMS oferece **visibilidade em tempo real** de toda a sua frota e de cada entrega individualmente — por meio de um mapa interativo, linha do tempo de eventos, alertas automáticos configuráveis e integração com os principais rastreadores e dispositivos de telemetria do mercado brasileiro. Com essas ferramentas, sua equipe operacional age de forma proativa em vez de reativa.
+
+---
+
+## Mapa de frota
+
+O **Mapa de Frota** centraliza a posição atual de todos os veículos ativos em uma única tela. Para cada veículo, você visualiza:
+
+- **Posição atual** atualizada automaticamente conforme as leituras do rastreador GPS conectado.
+- **Nome do motorista** responsável pelo veículo naquele turno.
+- **Ordem de entrega em andamento** — o pedido ou romaneio que está sendo executado no momento.
+- **ETA estimado** para a próxima parada, calculado com base na posição atual e no histórico de tráfego.
+
+Clique sobre qualquer veículo no mapa para abrir o painel detalhado com o histórico de posições do dia e o roteiro completo de entregas.
+
+---
+
+## Acompanhamento de entregas
+
+Cada ordem de entrega possui uma **linha do tempo de eventos** que registra cada etapa da operação:
+
+<Steps>
+  <Step title="Criado">
+    A ordem foi gerada no TMS e atribuída a um motorista ou roteiro.
+  </Step>
+  <Step title="Coleta confirmada">
+    O motorista confirmou a coleta da mercadoria na origem (via App Brudam).
+  </Step>
+  <Step title="Em trânsito">
+    O veículo está a caminho do destinatário; posição atualizada em tempo real.
+  </Step>
+  <Step title="Entregue / Insucesso">
+    Entrega confirmada com foto e assinatura, ou insucesso registrado com motivo pelo motorista.
+  </Step>
+</Steps>
+
+Use os filtros na listagem de entregas para segmentar por **data**, **motorista**, **região de entrega** ou **status** — facilitando o acompanhamento em operações com grande volume diário.
+
+---
+
+## Alertas e notificações
+
+Configure alertas automáticos para que sua equipe seja notificada proativamente sobre eventos críticos da operação:
+
+| Alerta | Descrição |
+|---|---|
+| **Veículo parado** | Notifica quando um veículo fica imóvel por mais de X minutos fora de um ponto de parada previsto. |
+| **Entrega atrasada** | Dispara quando o ETA ultrapassa o SLA contratado com o cliente. |
+| **Desvio de rota** | Alerta quando o veículo se afasta da rota planejada além de um raio configurável. |
+| **Confirmação de entrega** | Notifica a equipe (e opcionalmente o cliente) assim que a entrega é confirmada no app. |
+
+Para configurar os alertas, acesse **Configurações > Rastreamento > Alertas** e defina os parâmetros para cada tipo de notificação. Alertas podem ser enviados por **e-mail**, **SMS** ou **notificação push** no painel do TMS.
+
+<Tip>
+  Configure os **alertas de SLA** para notificar clientes sobre atrasos antes que eles entrem em contato com o seu SAC. Isso reduz chamadas de suporte e demonstra proatividade no atendimento.
+</Tip>
+
+---
+
+## Integração com rastreadores
+
+O Brudam se integra com os principais fabricantes e protocolos de rastreamento utilizados no Brasil. Para conectar seus dispositivos, acesse **Configurações > Frota > Rastreadores** e selecione o protocolo do seu equipamento.
+
+Protocolos e integrações suportados incluem:
+
+- **MQTT** — protocolo leve para dispositivos IoT e rastreadores modernos.
+- **NMEA 0183** — padrão amplamente utilizado em receptores GPS embarcados.
+- **API REST** — para plataformas de telemetria que oferecem integração via webhook ou consulta periódica.
+- **Integração nativa** com plataformas de telemetria parceiras (consulte a lista atualizada em **Configurações > Integrações**).
+
+Após vincular o rastreador a um veículo cadastrado, as posições passam a ser exibidas automaticamente no Mapa de Frota.
+
+---
+
+## Compartilhar rastreamento com clientes
+
+Seus clientes embarcadores podem acompanhar os próprios envios de duas formas:
+
+- **Portal do Cliente** — interface web self-service com mapa, linha do tempo e métricas de desempenho. Saiba como ativar em [Portal do Cliente](/guias/portal-cliente).
+- **Link de rastreamento** — o Brudam gera um link único por entrega que pode ser enviado automaticamente por **SMS ou e-mail** ao destinatário assim que o veículo sai para entrega. Configure o envio automático em **Configurações > Notificações ao Cliente**.

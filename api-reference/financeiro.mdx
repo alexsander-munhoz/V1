@@ -1,0 +1,356 @@
+---
+title: "API Financeira: consultar faturas, boletos e pagamentos"
+sidebarTitle: "Financeiro"
+description: "Endpoints para consultar contas a receber, status de boletos e pagamentos PIX via API Brudam TMS para conciliação financeira automatizada."
+---
+
+A API Financeira do Brudam TMS permite que você integre seu ERP ou sistema de conciliação financeira diretamente às contas a receber geradas pelas operações de transporte. Consulte faturas abertas, vencidas ou pagas, verifique o status de boletos bancários e gere cobranças via PIX de forma programática — tudo sem acessar o painel manualmente. Todos os endpoints exigem autenticação via Bearer Token no cabeçalho `Authorization`.
+
+<Note>
+  Os endpoints financeiros exigem as permissões `financeiro:read` (para consultas) ou `financeiro:write` (para geração de links de pagamento) no token de acesso. Caso seu token não possua essas permissões, você receberá um erro `403 Forbidden`. Consulte [Autenticação](/api-reference/autenticacao) para saber como emitir tokens com os escopos corretos.
+</Note>
+
+---
+
+## Listar contas a receber
+
+Retorna uma lista paginada de contas a receber geradas pelas operações de transporte. Você pode filtrar por status, intervalo de vencimento e CNPJ do cliente para facilitar a conciliação.
+
+**`GET /v1/financeiro/contas-receber`**
+
+### Parâmetros de consulta
+
+<ParamField query="status" type="string">
+  Filtra contas pelo status financeiro. Valores aceitos: `aberta`, `paga`, `vencida`.
+</ParamField>
+
+<ParamField query="data_vencimento_inicio" type="string (ISO date)">
+  Data de vencimento inicial do intervalo de busca. Formato: `YYYY-MM-DD`.
+</ParamField>
+
+<ParamField query="data_vencimento_fim" type="string (ISO date)">
+  Data de vencimento final do intervalo de busca. Formato: `YYYY-MM-DD`.
+</ParamField>
+
+<ParamField query="cliente_cnpj" type="string">
+  Filtra contas pelo CNPJ do cliente (tomador do frete). Somente dígitos.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request GET \
+  --url "https://api.brudam.com.br/v1/financeiro/contas-receber?status=aberta&data_vencimento_inicio=2024-07-01&data_vencimento_fim=2024-07-31" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Accept: application/json"
+```
+
+### Resposta
+
+<ResponseField name="data" type="array">
+  Lista paginada de contas a receber.
+
+  <Expandable title="Propriedades de cada conta a receber">
+    <ResponseField name="id" type="string (UUID)">
+      Identificador único da conta a receber.
+    </ResponseField>
+    <ResponseField name="numero_nfse" type="string">
+      Número da NFS-e (Nota Fiscal de Serviço Eletrônica) vinculada à cobrança, se aplicável.
+    </ResponseField>
+    <ResponseField name="cliente" type="object">
+      Dados do cliente responsável pelo pagamento.
+
+      <Expandable title="Propriedades do cliente">
+        <ResponseField name="nome" type="string">
+          Razão social ou nome do cliente.
+        </ResponseField>
+        <ResponseField name="cnpj" type="string">
+          CNPJ do cliente.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="valor" type="decimal">
+      Valor total da conta em BRL.
+    </ResponseField>
+    <ResponseField name="vencimento" type="string (ISO date)">
+      Data de vencimento da conta.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Status da conta: `aberta`, `paga` ou `vencida`.
+    </ResponseField>
+    <ResponseField name="boleto_url" type="string">
+      URL para visualização e download do boleto bancário. Presente somente quando a cobrança foi gerada por boleto.
+    </ResponseField>
+    <ResponseField name="pix_qr_code" type="string">
+      String do PIX copia e cola. Presente somente quando um QR Code PIX foi gerado para esta conta.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="total" type="integer">
+  Total de registros encontrados com os filtros aplicados.
+</ResponseField>
+
+<ResponseField name="pagina" type="integer">
+  Número da página atual.
+</ResponseField>
+
+<ResponseField name="por_pagina" type="integer">
+  Itens por página.
+</ResponseField>
+
+```json Exemplo de resposta (200 OK)
+{
+  "data": [
+    {
+      "id": "aa112233-4455-6677-8899-aabbccddeeff",
+      "numero_nfse": "000000321",
+      "cliente": {
+        "nome": "Comércio Paulista Ltda.",
+        "cnpj": "12345678000195"
+      },
+      "valor": 1350.00,
+      "vencimento": "2024-07-20",
+      "status": "aberta",
+      "boleto_url": "https://api.brudam.com.br/v1/financeiro/boletos/bb223344-5566-7788-99aa-bbccddeeff00/visualizar",
+      "pix_qr_code": null
+    },
+    {
+      "id": "cc334455-6677-8899-aabb-ccddeeff0011",
+      "numero_nfse": "000000322",
+      "cliente": {
+        "nome": "Distribuidora Norte S/A",
+        "cnpj": "98765432000112"
+      },
+      "valor": 875.50,
+      "vencimento": "2024-07-25",
+      "status": "aberta",
+      "boleto_url": null,
+      "pix_qr_code": null
+    }
+  ],
+  "total": 18,
+  "pagina": 1,
+  "por_pagina": 20
+}
+```
+
+---
+
+## Consultar conta a receber
+
+Retorna os dados completos de uma conta a receber específica, incluindo histórico de pagamentos e links de cobrança disponíveis.
+
+**`GET /v1/financeiro/contas-receber/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string (UUID)" required>
+  Identificador único da conta a receber.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request GET \
+  --url "https://api.brudam.com.br/v1/financeiro/contas-receber/aa112233-4455-6677-8899-aabbccddeeff" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Accept: application/json"
+```
+
+### Resposta
+
+<ResponseField name="id" type="string (UUID)">
+  Identificador único da conta.
+</ResponseField>
+
+<ResponseField name="numero_nfse" type="string">
+  Número da NFS-e vinculada.
+</ResponseField>
+
+<ResponseField name="cliente" type="object">
+  Dados completos do cliente (nome, cnpj, endereco).
+</ResponseField>
+
+<ResponseField name="valor" type="decimal">
+  Valor total em BRL.
+</ResponseField>
+
+<ResponseField name="vencimento" type="string (ISO date)">
+  Data de vencimento.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Status atual: `aberta`, `paga` ou `vencida`.
+</ResponseField>
+
+<ResponseField name="boleto_url" type="string">
+  URL do boleto bancário, se disponível.
+</ResponseField>
+
+<ResponseField name="pix_qr_code" type="string">
+  Código PIX copia e cola, se disponível.
+</ResponseField>
+
+<ResponseField name="historico_pagamentos" type="array">
+  Histórico de tentativas e confirmações de pagamento.
+
+  <Expandable title="Propriedades de cada registro de pagamento">
+    <ResponseField name="data_pagamento" type="string (ISO datetime)">
+      Data e hora em que o pagamento foi confirmado.
+    </ResponseField>
+    <ResponseField name="valor_pago" type="decimal">
+      Valor efetivamente pago.
+    </ResponseField>
+    <ResponseField name="forma_pagamento" type="string">
+      Forma de pagamento utilizada: `boleto`, `pix` ou `transferencia`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+```json Exemplo de resposta (200 OK)
+{
+  "id": "aa112233-4455-6677-8899-aabbccddeeff",
+  "numero_nfse": "000000321",
+  "cliente": {
+    "nome": "Comércio Paulista Ltda.",
+    "cnpj": "12345678000195",
+    "endereco": {
+      "logradouro": "Rua das Acácias",
+      "numero": "452",
+      "cidade": "São Paulo",
+      "uf": "SP",
+      "cep": "01310100"
+    }
+  },
+  "valor": 1350.00,
+  "vencimento": "2024-07-20",
+  "status": "paga",
+  "boleto_url": "https://api.brudam.com.br/v1/financeiro/boletos/bb223344-5566-7788-99aa-bbccddeeff00/visualizar",
+  "pix_qr_code": null,
+  "historico_pagamentos": [
+    {
+      "data_pagamento": "2024-07-18T14:35:00-03:00",
+      "valor_pago": 1350.00,
+      "forma_pagamento": "boleto"
+    }
+  ],
+  "criado_em": "2024-07-01T09:00:00-03:00",
+  "atualizado_em": "2024-07-18T14:35:45-03:00"
+}
+```
+
+---
+
+## Consultar status de boleto
+
+Retorna o status atualizado de um boleto bancário específico, incluindo data de pagamento quando confirmado.
+
+**`GET /v1/financeiro/boletos/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string (UUID)" required>
+  Identificador único do boleto no Brudam TMS.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request GET \
+  --url "https://api.brudam.com.br/v1/financeiro/boletos/bb223344-5566-7788-99aa-bbccddeeff00" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Accept: application/json"
+```
+
+### Resposta
+
+<ResponseField name="id" type="string (UUID)">
+  Identificador único do boleto.
+</ResponseField>
+
+<ResponseField name="nosso_numero" type="string">
+  Nosso número do boleto, gerado pelo banco emissor.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Status atual do boleto: `registrado`, `pago`, `vencido` ou `cancelado`.
+</ResponseField>
+
+<ResponseField name="valor" type="decimal">
+  Valor do boleto em BRL.
+</ResponseField>
+
+<ResponseField name="vencimento" type="string (ISO date)">
+  Data de vencimento do boleto.
+</ResponseField>
+
+<ResponseField name="data_pagamento" type="string (ISO datetime)">
+  Data e hora do pagamento confirmado pelo banco. Retorna `null` para boletos ainda não pagos.
+</ResponseField>
+
+<ResponseField name="url_boleto" type="string">
+  URL para visualização e impressão do boleto em PDF.
+</ResponseField>
+
+```json Exemplo de resposta (200 OK)
+{
+  "id": "bb223344-5566-7788-99aa-bbccddeeff00",
+  "nosso_numero": "00012345678901",
+  "status": "pago",
+  "valor": 1350.00,
+  "vencimento": "2024-07-20",
+  "data_pagamento": "2024-07-18T14:35:00-03:00",
+  "url_boleto": "https://api.brudam.com.br/v1/financeiro/boletos/bb223344-5566-7788-99aa-bbccddeeff00/visualizar"
+}
+```
+
+---
+
+## Gerar link de pagamento PIX
+
+Gera um QR Code e a string PIX copia e cola para uma conta a receber específica, permitindo que o cliente efetue o pagamento instantaneamente. O link expira conforme o prazo configurado na conta.
+
+**`POST /v1/financeiro/contas-receber/{id}/pix`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string (UUID)" required>
+  Identificador único da conta a receber para a qual o PIX será gerado.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request POST \
+  --url "https://api.brudam.com.br/v1/financeiro/contas-receber/cc334455-6677-8899-aabb-ccddeeff0011/pix" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json"
+```
+
+### Resposta
+
+<ResponseField name="pix_copia_cola" type="string">
+  String completa do PIX copia e cola (EMV), pronta para ser exibida ao pagador ou inserida em qualquer app de pagamento compatível.
+</ResponseField>
+
+<ResponseField name="qr_code_base64" type="string">
+  Imagem do QR Code PIX codificada em Base64. Utilize para renderizar o QR Code diretamente na sua interface, sem depender de serviços externos.
+</ResponseField>
+
+<ResponseField name="valor" type="decimal">
+  Valor a ser cobrado em BRL, correspondente ao saldo em aberto da conta.
+</ResponseField>
+
+<ResponseField name="expira_em" type="string (ISO datetime)">
+  Data e hora de expiração do QR Code PIX. Após esse prazo, um novo PIX deverá ser gerado.
+</ResponseField>
+
+```json Exemplo de resposta (201 Created)
+{
+  "pix_copia_cola": "00020126580014br.gov.bcb.pix0136b6295bef-1a2b-3c4d-5e6f-7a8b9c0d1e2f5204000053039865802BR5923Brudam Transportes Ltda6009Sao Paulo62070503***6304A1B2",
+  "qr_code_base64": "iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccqhmAAAAAXNSR0IArs4c6QAA...",
+  "valor": 875.50,
+  "expira_em": "2024-07-11T23:59:59-03:00"
+}
+```

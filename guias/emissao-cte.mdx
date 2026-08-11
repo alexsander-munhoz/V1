@@ -1,0 +1,91 @@
+---
+title: "Como emitir CT-e no Brudam TMS"
+sidebarTitle: "Emissão CT-e"
+description: "Passo a passo para emitir o Conhecimento de Transporte Eletrônico (CT-e) no Brudam TMS com validação automática no SEFAZ."
+---
+
+O **CT-e (Conhecimento de Transporte Eletrônico)** é o documento fiscal obrigatório para o transporte rodoviário de cargas no Brasil. O Brudam TMS pré-valida todos os dados antes do envio e transmite o documento ao SEFAZ automaticamente, retornando a autorização em segundos e eliminando retrabalho por rejeições evitáveis.
+
+## Emitindo um CT-e
+
+<Steps>
+  <Step title="Acesse o módulo CT-e">
+    No menu principal do Brudam TMS, clique em **CT-e** para abrir o módulo de emissão.
+  </Step>
+  <Step title="Clique em Novo CT-e">
+    Na listagem de documentos, selecione o botão **Novo CT-e** no canto superior direito da tela.
+  </Step>
+  <Step title="Informe os dados do remetente e destinatário">
+    Preencha o **CNPJ**, razão social e endereço completo do remetente e do destinatário. O Brudam consulta automaticamente a Receita Federal para validar o CNPJ informado.
+  </Step>
+  <Step title="Adicione as notas fiscais vinculadas à carga">
+    Na seção **NF-e**, busque as notas fiscais eletrônicas pelo número ou chave de acesso e vincule-as ao CT-e. É possível associar múltiplas NF-es a um único conhecimento.
+  </Step>
+  <Step title="Informe os dados da carga">
+    Preencha o **peso bruto** (kg), quantidade de volumes e o **valor declarado** da mercadoria. Esses dados são utilizados no cálculo do frete e na base do seguro.
+  </Step>
+  <Step title="Selecione a natureza da prestação (CFOP) e a alíquota">
+    Escolha o **CFOP** correspondente à operação (ex.: 6351 para prestação de serviço de transporte interestadual) e informe a alíquota de ICMS aplicável conforme a legislação do estado de origem.
+  </Step>
+  <Step title="Pré-validar o documento">
+    O Brudam executa uma verificação completa dos dados — inconsistências de CFOP, alíquotas, campos obrigatórios e integridade das NF-es vinculadas — e exibe uma lista de alertas antes do envio ao SEFAZ.
+  </Step>
+  <Step title="Emitir o CT-e">
+    Após corrigir eventuais alertas, clique em **Emitir**. O Brudam transmite o CT-e ao SEFAZ e exibe o número de autorização (protocolo) em instantes.
+  </Step>
+  <Step title="DANFE-CT-e gerado automaticamente">
+    Com a autorização confirmada, o **DANFE-CT-e em PDF** fica disponível para impressão imediata ou envio automático por e-mail ao destinatário e ao tomador do serviço.
+  </Step>
+</Steps>
+
+---
+
+## Status do CT-e
+
+Após a emissão, cada CT-e passa por um ciclo de status que você pode acompanhar na listagem do módulo:
+
+| Status | Descrição |
+|---|---|
+| **Rascunho** | Documento criado, mas ainda não enviado ao SEFAZ. |
+| **Aguardando SEFAZ** | Transmissão em andamento; aguardando resposta do fisco. |
+| **Autorizado** | SEFAZ aprovou o documento. O CT-e tem validade fiscal. |
+| **Cancelado** | Cancelamento aceito pelo SEFAZ dentro do prazo permitido. |
+| **Denegado** | SEFAZ negou o documento (ex.: irregularidade cadastral). O CT-e denegado **não pode** ser cancelado nem reaproveitado. |
+
+---
+
+## Cancelamento
+
+Para cancelar um CT-e autorizado, siga os passos abaixo:
+
+1. Na listagem do módulo **CT-e**, localize o documento que deseja cancelar.
+2. Clique no menu **Ações** (⋮) ao lado do CT-e e selecione **Cancelar**.
+3. Informe o **motivo do cancelamento** no campo de texto (mínimo de 15 caracteres, conforme exigência do SEFAZ).
+4. Confirme a operação. O Brudam transmite o evento de cancelamento ao SEFAZ e atualiza o status do documento.
+
+<Warning>
+  O cancelamento do CT-e é permitido em **até 24 horas** após a autorização na maioria dos estados brasileiros. Após esse prazo, utilize a **Carta de Correção Eletrônica (CC-e)** para corrigir campos permitidos, ou entre em contato com a SEFAZ estadual para casos excepcionais.
+</Warning>
+
+---
+
+## Evento 110190 — Insucesso de Entrega
+
+A partir de **2026**, o registro do evento de **Insucesso de Entrega** passa a ser obrigatório no CT-e sempre que uma entrega não for concluída com sucesso. Para registrar o evento manualmente:
+
+1. Na listagem do módulo **CT-e**, selecione o conhecimento correspondente à entrega não realizada.
+2. Clique em **Eventos** e depois em **Insucesso de Entrega**.
+3. Preencha o **motivo** (ex.: destinatário ausente, endereço não encontrado) e a **data da tentativa** de entrega.
+4. Confirme o envio. O evento é transmitido ao SEFAZ e fica registrado no histórico do CT-e.
+
+<Info>
+  Se você utiliza o **App Brudam para motoristas**, o evento 110190 é gerado automaticamente quando o motorista registra um insucesso de entrega pelo aplicativo. Consulte o guia [App Motorista](/guias/aplicativo-motorista) para mais detalhes.
+</Info>
+
+---
+
+## Dicas e atalhos
+
+<Tip>
+  Use a **importação em lote de CT-es via planilha Excel** para emitir múltiplos conhecimentos de uma só vez — ideal para transportadoras com alto volume diário. O recurso está disponível em **Ferramentas > Importar CT-e em Lote** no menu superior do módulo.
+</Tip>

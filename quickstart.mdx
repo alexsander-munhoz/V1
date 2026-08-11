@@ -1,47 +1,76 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Primeiros passos com o Brudam TMS"
+sidebarTitle: "Quickstart"
+description: "Aprenda como autenticar e fazer sua primeira chamada à API Brudam em menos de 10 minutos, com exemplos prontos para usar."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
+Esta página guia você pelos passos essenciais para realizar sua primeira chamada à API do Brudam TMS. Em menos de 10 minutos, você estará autenticado e consultando dados reais da sua operação de transporte.
 
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
-
-## Prerequisites
-
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+## Passo a passo
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
-
-    ```bash
-    npm install your-package
-    ```
+  <Step title="Criar conta">
+    Acesse [app.brudam.com.br](https://app.brudam.com.br) e crie sua conta gratuitamente. Você tem **7 dias de teste grátis** sem precisar cadastrar cartão de crédito — basta preencher os dados básicos da sua transportadora e começar a explorar.
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
 
-    ```bash
-    your-cli init
-    ```
+  <Step title="Gerar token de acesso">
+    Após fazer login, navegue até **Configurações → Integrações → API Keys**. Clique em **Gerar nova chave**, dê um nome descritivo (por exemplo, `integração-erp`) e copie o **Bearer token** exibido.
+
+    <Warning>
+      Guarde seu token em um local seguro. Por questões de segurança, ele não poderá ser visualizado novamente após fechar a tela de geração.
+    </Warning>
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+
+  <Step title="Fazer primeira requisição">
+    Com o token em mãos, execute o comando abaixo no seu terminal para listar as entregas da sua operação:
 
     ```bash
-    your-cli start
+    curl -X GET https://api.brudam.com.br/v1/entregas \
+      -H "Authorization: Bearer SEU_TOKEN_AQUI" \
+      -H "Content-Type: application/json"
     ```
+
+    Substitua `SEU_TOKEN_AQUI` pelo token copiado na etapa anterior.
+  </Step>
+
+  <Step title="Interpretar a resposta">
+    Uma resposta bem-sucedida retorna um objeto JSON com a lista de entregas, o total de registros e a página atual. Veja um exemplo:
+
+    ```json
+    {
+      "data": [
+        {
+          "id": "f1e7be5c-1234-4abc-8def-000000000001",
+          "status": "em_transito",
+          "destinatario": "Empresa ABC Ltda",
+          "volumes": 3,
+          "previsao_entrega": "2025-08-15T18:00:00Z"
+        }
+      ],
+      "total": 1,
+      "pagina": 1
+    }
+    ```
+
+    O campo `status` indica a situação atual da entrega. Os valores possíveis incluem `em_transito`, `entregue`, `pendente` e `ocorrencia`. Use o campo `id` para consultas e atualizações posteriores.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+<Note>
+  Todas as requisições à API Brudam devem ser feitas via **HTTPS**. Requisições sem o cabeçalho `Authorization` com o Bearer token válido serão rejeitadas com o código `401 Unauthorized`.
+</Note>
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
+<Tip>
+  Quer explorar todos os endpoints disponíveis, parâmetros de filtragem e modelos de resposta? Consulte a [documentação completa da API](/api-reference/introducao).
 </Tip>
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Autenticação" icon="key" href="/api-reference/autenticacao">
+    Entenda o fluxo de autenticação via Bearer token, rotação de chaves e boas práticas de segurança.
+  </Card>
+  <Card title="Entregas API" icon="truck" href="/api-reference/entregas">
+    Explore todos os endpoints de entregas: criação, atualização de status, ocorrências e comprovantes.
+  </Card>
+</CardGroup>

@@ -1,0 +1,332 @@
+---
+title: "API de Coletas: agendar e gerenciar ordens de coleta"
+sidebarTitle: "Coletas"
+description: "Endpoints para criar, consultar e cancelar ordens de coleta (pickup) na API Brudam TMS, com suporte a agendamento e atribuição de motorista."
+---
+
+A API de Coletas permite que você agende retiradas de mercadoria diretamente pelo seu sistema, eliminando a necessidade de entrada manual no painel do Brudam TMS. Você pode definir o período preferencial de coleta, atribuir motoristas e acompanhar a confirmação em campo. Todos os endpoints exigem autenticação via Bearer Token no cabeçalho `Authorization`.
+
+---
+
+## Criar ordem de coleta
+
+Cria uma nova ordem de coleta (pickup) agendada para o endereço do remetente. Se o roteamento automático estiver habilitado na conta, um motorista disponível será atribuído automaticamente com base na geolocalização.
+
+**`POST /v1/coletas`**
+
+### Corpo da requisição
+
+<ParamField body="remetente" type="object" required>
+  Dados do remetente de onde a mercadoria será coletada.
+
+  <Expandable title="Propriedades do remetente">
+    <ParamField body="nome" type="string" required>
+      Razão social ou nome do remetente.
+    </ParamField>
+    <ParamField body="cnpj" type="string" required>
+      CNPJ do remetente (somente dígitos, 14 caracteres).
+    </ParamField>
+    <ParamField body="endereco" type="object" required>
+      Endereço de coleta.
+
+      <Expandable title="Propriedades do endereço">
+        <ParamField body="logradouro" type="string" required>
+          Nome da rua, avenida ou logradouro.
+        </ParamField>
+        <ParamField body="numero" type="string" required>
+          Número do endereço. Utilize `"S/N"` quando não houver número.
+        </ParamField>
+        <ParamField body="cidade" type="string" required>
+          Nome do município onde a coleta será realizada.
+        </ParamField>
+        <ParamField body="uf" type="string" required>
+          Sigla do estado (2 caracteres). Exemplo: `"RJ"`.
+        </ParamField>
+        <ParamField body="cep" type="string" required>
+          CEP do endereço (somente dígitos, 8 caracteres).
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="data_coleta" type="string (ISO date)" required>
+  Data agendada para a realização da coleta. Formato: `YYYY-MM-DD`. Exemplo: `"2024-07-18"`.
+</ParamField>
+
+<ParamField body="periodo" type="string" required>
+  Período preferencial para a coleta. Valores aceitos: `manha` (08h–12h), `tarde` (13h–18h), `integral` (08h–18h).
+</ParamField>
+
+<ParamField body="volumes" type="integer" required>
+  Número total de volumes a serem coletados.
+</ParamField>
+
+<ParamField body="peso_kg" type="decimal" required>
+  Peso estimado da carga em quilogramas.
+</ParamField>
+
+<ParamField body="observacoes" type="string">
+  Instruções adicionais para o motorista, como localização interna, contato no local ou restrições de acesso.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request POST \
+  --url "https://api.brudam.com.br/v1/coletas" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "remetente": {
+      "nome": "Indústria Têxtil do Sul Ltda.",
+      "cnpj": "55566677000188",
+      "endereco": {
+        "logradouro": "Av. Industrial",
+        "numero": "1200",
+        "cidade": "Blumenau",
+        "uf": "SC",
+        "cep": "89010200"
+      }
+    },
+    "data_coleta": "2024-07-18",
+    "periodo": "manha",
+    "volumes": 8,
+    "peso_kg": 120.0,
+    "observacoes": "Solicitar acesso pela portaria B. Contato: (47) 99123-4567."
+  }'
+```
+
+```json Exemplo de resposta (201 Created)
+{
+  "id": "c9a1b2e3-45f6-7890-abcd-ef1234567890",
+  "status": "agendada",
+  "data_coleta": "2024-07-18",
+  "periodo": "manha",
+  "volumes": 8,
+  "peso_kg": 120.0,
+  "remetente": {
+    "nome": "Indústria Têxtil do Sul Ltda.",
+    "cnpj": "55566677000188",
+    "endereco": {
+      "logradouro": "Av. Industrial",
+      "numero": "1200",
+      "cidade": "Blumenau",
+      "uf": "SC",
+      "cep": "89010200"
+    }
+  },
+  "motorista": {
+    "id": "d1e2f3a4-5678-90bc-def0-123456789012",
+    "nome": "Carlos Eduardo Souza",
+    "telefone": "+554799876543"
+  },
+  "observacoes": "Solicitar acesso pela portaria B. Contato: (47) 99123-4567.",
+  "criado_em": "2024-07-10T16:05:00-03:00"
+}
+```
+
+---
+
+## Listar coletas
+
+Retorna uma lista paginada de ordens de coleta, com suporte a filtros por data, status e motorista responsável.
+
+**`GET /v1/coletas`**
+
+### Parâmetros de consulta
+
+<ParamField query="data" type="string (ISO date)">
+  Filtra coletas pela data agendada. Formato: `YYYY-MM-DD`.
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filtra coletas pelo status atual. Valores aceitos: `agendada`, `realizada`, `cancelada`.
+</ParamField>
+
+<ParamField query="motorista_id" type="string (UUID)">
+  Filtra coletas atribuídas a um motorista específico.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request GET \
+  --url "https://api.brudam.com.br/v1/coletas?data=2024-07-18&status=agendada" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Accept: application/json"
+```
+
+### Resposta
+
+<ResponseField name="data" type="array">
+  Lista paginada de objetos de coleta.
+
+  <Expandable title="Propriedades do objeto de coleta">
+    <ResponseField name="id" type="string (UUID)">
+      Identificador único da coleta.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Status atual: `agendada`, `realizada` ou `cancelada`.
+    </ResponseField>
+    <ResponseField name="data_coleta" type="string (ISO date)">
+      Data agendada para a coleta.
+    </ResponseField>
+    <ResponseField name="periodo" type="string">
+      Período da coleta: `manha`, `tarde` ou `integral`.
+    </ResponseField>
+    <ResponseField name="remetente" type="object">
+      Dados do remetente (nome e CNPJ).
+    </ResponseField>
+    <ResponseField name="motorista" type="object">
+      Motorista atribuído, se disponível.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="total" type="integer">
+  Total de registros encontrados.
+</ResponseField>
+
+<ResponseField name="pagina" type="integer">
+  Página atual.
+</ResponseField>
+
+<ResponseField name="por_pagina" type="integer">
+  Itens por página.
+</ResponseField>
+
+```json Exemplo de resposta (200 OK)
+{
+  "data": [
+    {
+      "id": "c9a1b2e3-45f6-7890-abcd-ef1234567890",
+      "status": "agendada",
+      "data_coleta": "2024-07-18",
+      "periodo": "manha",
+      "remetente": {
+        "nome": "Indústria Têxtil do Sul Ltda.",
+        "cnpj": "55566677000188"
+      },
+      "motorista": {
+        "id": "d1e2f3a4-5678-90bc-def0-123456789012",
+        "nome": "Carlos Eduardo Souza"
+      }
+    }
+  ],
+  "total": 5,
+  "pagina": 1,
+  "por_pagina": 20
+}
+```
+
+---
+
+## Consultar coleta
+
+Retorna os dados completos de uma ordem de coleta específica, incluindo a confirmação do motorista em campo e o timestamp de realização.
+
+**`GET /v1/coletas/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string (UUID)" required>
+  Identificador único da ordem de coleta.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request GET \
+  --url "https://api.brudam.com.br/v1/coletas/c9a1b2e3-45f6-7890-abcd-ef1234567890" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Accept: application/json"
+```
+
+### Resposta
+
+<ResponseField name="id" type="string (UUID)">
+  Identificador único da coleta.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Status atual da coleta: `agendada`, `realizada` ou `cancelada`.
+</ResponseField>
+
+<ResponseField name="remetente" type="object">
+  Dados completos do remetente, incluindo endereço de coleta.
+</ResponseField>
+
+<ResponseField name="data_coleta" type="string (ISO date)">
+  Data agendada para a coleta.
+</ResponseField>
+
+<ResponseField name="periodo" type="string">
+  Período da coleta: `manha`, `tarde` ou `integral`.
+</ResponseField>
+
+<ResponseField name="motorista" type="object">
+  Dados do motorista atribuído (id, nome, telefone).
+</ResponseField>
+
+<ResponseField name="confirmacao_coleta" type="string (ISO datetime)">
+  Data e hora em que o motorista confirmou a realização da coleta via aplicativo. Retorna `null` enquanto a coleta não for confirmada.
+</ResponseField>
+
+```json Exemplo de resposta (200 OK)
+{
+  "id": "c9a1b2e3-45f6-7890-abcd-ef1234567890",
+  "status": "realizada",
+  "data_coleta": "2024-07-18",
+  "periodo": "manha",
+  "volumes": 8,
+  "peso_kg": 120.0,
+  "remetente": {
+    "nome": "Indústria Têxtil do Sul Ltda.",
+    "cnpj": "55566677000188",
+    "endereco": {
+      "logradouro": "Av. Industrial",
+      "numero": "1200",
+      "cidade": "Blumenau",
+      "uf": "SC",
+      "cep": "89010200"
+    }
+  },
+  "motorista": {
+    "id": "d1e2f3a4-5678-90bc-def0-123456789012",
+    "nome": "Carlos Eduardo Souza",
+    "telefone": "+554799876543"
+  },
+  "observacoes": "Solicitar acesso pela portaria B. Contato: (47) 99123-4567.",
+  "confirmacao_coleta": "2024-07-18T09:47:22-03:00",
+  "criado_em": "2024-07-10T16:05:00-03:00"
+}
+```
+
+---
+
+## Cancelar coleta
+
+Cancela uma ordem de coleta agendada. **Somente coletas com status `agendada` podem ser canceladas.** Coletas com status `realizada` não podem ser desfeitas por esta API.
+
+**`DELETE /v1/coletas/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string (UUID)" required>
+  Identificador único da ordem de coleta a ser cancelada.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request DELETE \
+  --url "https://api.brudam.com.br/v1/coletas/c9a1b2e3-45f6-7890-abcd-ef1234567890" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+Uma resposta `204 No Content` indica que a coleta foi cancelada com sucesso. Nenhum corpo é retornado.
+
+```text Exemplo de resposta (204 No Content)
+(sem corpo de resposta)
+```

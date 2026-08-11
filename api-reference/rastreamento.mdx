@@ -1,0 +1,203 @@
+---
+title: "API de Rastreamento: consultar status de envios em tempo real"
+sidebarTitle: "Rastreamento"
+description: "Endpoint para consultar o status e histórico de rastreamento de entregas e CT-es em tempo real via API Brudam TMS."
+---
+
+A API de Rastreamento oferece visibilidade completa sobre o ciclo de vida de cada envio — da coleta até a entrega confirmada. Você pode consultar o status atual e o histórico de eventos por ID de entrega ou pela chave de acesso do CT-e. Para integrações de alto volume ou que exijam notificações imediatas, recomendamos o uso de **webhooks** em vez de polling periódico. Todos os endpoints exigem autenticação via Bearer Token no cabeçalho `Authorization`.
+
+---
+
+## Consultar rastreamento por ID
+
+Retorna o status atual e o histórico completo de eventos de uma entrega, identificada pelo seu UUID interno.
+
+**`GET /v1/rastreamento/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string (UUID)" required>
+  Identificador único da entrega no Brudam TMS, retornado no momento da criação da ordem de entrega.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request GET \
+  --url "https://api.brudam.com.br/v1/rastreamento/a3f2c1d4-89ab-4e12-bcde-012345678901" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Accept: application/json"
+```
+
+### Resposta
+
+<ResponseField name="id" type="string (UUID)">
+  Identificador único da entrega.
+</ResponseField>
+
+<ResponseField name="status_atual" type="string">
+  Status mais recente da entrega: `pendente`, `coletado`, `em_transito`, `saiu_para_entrega`, `entregue` ou `insucesso`.
+</ResponseField>
+
+<ResponseField name="eventos" type="array">
+  Histórico cronológico de eventos de rastreamento, do mais antigo ao mais recente.
+
+  <Expandable title="Propriedades de cada evento">
+    <ResponseField name="data_hora" type="string (ISO 8601)">
+      Data e hora em que o evento ocorreu.
+    </ResponseField>
+    <ResponseField name="descricao" type="string">
+      Descrição legível do evento de rastreamento.
+    </ResponseField>
+    <ResponseField name="local" type="object">
+      Localização onde o evento foi registrado.
+
+      <Expandable title="Propriedades do local">
+        <ResponseField name="cidade" type="string">
+          Nome do município onde o evento ocorreu.
+        </ResponseField>
+        <ResponseField name="uf" type="string">
+          Sigla do estado onde o evento ocorreu.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="codigo_evento" type="string">
+      Código interno do tipo de evento. Consulte a tabela de eventos no portal do desenvolvedor.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+```json Exemplo de resposta (200 OK)
+{
+  "id": "a3f2c1d4-89ab-4e12-bcde-012345678901",
+  "status_atual": "entregue",
+  "eventos": [
+    {
+      "data_hora": "2024-07-10T09:15:00-03:00",
+      "descricao": "Ordem de entrega criada.",
+      "local": { "cidade": "Curitiba", "uf": "PR" },
+      "codigo_evento": "EVT001"
+    },
+    {
+      "data_hora": "2024-07-11T08:00:00-03:00",
+      "descricao": "Carga coletada no remetente.",
+      "local": { "cidade": "Curitiba", "uf": "PR" },
+      "codigo_evento": "EVT010"
+    },
+    {
+      "data_hora": "2024-07-12T07:30:00-03:00",
+      "descricao": "Carga em trânsito para o destino.",
+      "local": { "cidade": "Curitiba", "uf": "PR" },
+      "codigo_evento": "EVT020"
+    },
+    {
+      "data_hora": "2024-07-14T18:10:00-03:00",
+      "descricao": "Carga chegou à unidade de distribuição de destino.",
+      "local": { "cidade": "São Paulo", "uf": "SP" },
+      "codigo_evento": "EVT030"
+    },
+    {
+      "data_hora": "2024-07-15T08:45:00-03:00",
+      "descricao": "Saiu para entrega.",
+      "local": { "cidade": "São Paulo", "uf": "SP" },
+      "codigo_evento": "EVT040"
+    },
+    {
+      "data_hora": "2024-07-15T13:22:00-03:00",
+      "descricao": "Entrega realizada com sucesso. Recebido por: MARIA SILVA.",
+      "local": { "cidade": "São Paulo", "uf": "SP" },
+      "codigo_evento": "EVT050"
+    }
+  ]
+}
+```
+
+---
+
+## Consultar rastreamento por chave de acesso CT-e
+
+Retorna o mesmo histórico de rastreamento utilizando a chave de acesso do CT-e vinculado à entrega como identificador — útil para integrações que já possuem a chave do documento fiscal mas não o UUID interno do Brudam.
+
+**`GET /v1/rastreamento/cte/{chave_acesso}`**
+
+### Parâmetros de caminho
+
+<ParamField path="chave_acesso" type="string" required>
+  Chave de acesso do CT-e com 44 dígitos numéricos. Exemplo: `41240711222333000181570010000000421000000428`.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request GET \
+  --url "https://api.brudam.com.br/v1/rastreamento/cte/41240711222333000181570010000000421000000428" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Accept: application/json"
+```
+
+```json Exemplo de resposta (200 OK)
+{
+  "id": "a3f2c1d4-89ab-4e12-bcde-012345678901",
+  "chave_acesso_cte": "41240711222333000181570010000000421000000428",
+  "status_atual": "entregue",
+  "eventos": [
+    {
+      "data_hora": "2024-07-11T10:00:14-03:00",
+      "descricao": "CT-e autorizado pela SEFAZ.",
+      "local": { "cidade": "Curitiba", "uf": "PR" },
+      "codigo_evento": "EVT005"
+    },
+    {
+      "data_hora": "2024-07-12T07:30:00-03:00",
+      "descricao": "Carga em trânsito para o destino.",
+      "local": { "cidade": "Curitiba", "uf": "PR" },
+      "codigo_evento": "EVT020"
+    },
+    {
+      "data_hora": "2024-07-15T13:22:00-03:00",
+      "descricao": "Entrega realizada com sucesso. Recebido por: MARIA SILVA.",
+      "local": { "cidade": "São Paulo", "uf": "SP" },
+      "codigo_evento": "EVT050"
+    }
+  ]
+}
+```
+
+---
+
+## Webhooks de rastreamento
+
+Em vez de consultar o endpoint de rastreamento periodicamente, você pode configurar **webhooks** para receber notificações automáticas em tempo real sempre que um evento de rastreamento ocorrer.
+
+O Brudam TMS envia um `POST` para a URL configurada por você sempre que um dos seguintes eventos for acionado:
+
+| Evento                  | Descrição                                                    |
+|-------------------------|--------------------------------------------------------------|
+| `coleta_confirmada`     | O motorista confirmou a coleta da mercadoria no remetente.   |
+| `em_transito`           | A carga está em trânsito entre unidades.                     |
+| `entrega_confirmada`    | A entrega foi realizada e confirmada pelo destinatário.      |
+| `insucesso_entrega`     | Houve insucesso na tentativa de entrega.                     |
+
+### Como configurar
+
+Acesse o painel do Brudam TMS em **Configurações → Integrações → Webhooks** e adicione a URL de destino junto com os eventos que deseja monitorar. Você também pode configurar um segredo (secret) para validar a assinatura HMAC-SHA256 dos payloads recebidos.
+
+### Exemplo de payload recebido
+
+```json Exemplo de payload de webhook
+{
+  "evento": "entrega_confirmada",
+  "entrega_id": "a3f2c1d4-89ab-4e12-bcde-012345678901",
+  "data_hora": "2024-07-15T13:22:00-03:00",
+  "descricao": "Entrega realizada com sucesso. Recebido por: MARIA SILVA.",
+  "local": {
+    "cidade": "São Paulo",
+    "uf": "SP"
+  },
+  "codigo_evento": "EVT050"
+}
+```
+
+<Tip>
+  Use webhooks em vez de fazer polling periódico no endpoint de rastreamento. Além de reduzir significativamente o número de chamadas à API, você recebe as notificações em tempo real — geralmente em menos de 2 segundos após o evento ser registrado.
+</Tip>
