@@ -404,3 +404,31 @@ curl --request PUT \
   "atualizado_em": "2024-07-10T11:42:00-03:00"
 }
 ```
+
+---
+
+## Excluir entrega
+
+Remove permanentemente uma ordem de entrega. **Somente entregas com status `pendente` podem ser excluídas.** Tentativas de excluir entregas em andamento ou já finalizadas retornarão erro `422 Unprocessable Entity`.
+
+**`DELETE /v1/entregas/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string (UUID)" required>
+  Identificador único da entrega a ser excluída.
+</ParamField>
+
+### Exemplo de requisição
+
+```bash cURL
+curl --request DELETE \
+  --url "https://api.brudam.com.br/v1/entregas/a3f2c1d4-89ab-4e12-bcde-012345678901" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+Uma resposta `204 No Content` confirma que a entrega foi excluída com sucesso. Nenhum corpo é retornado.
+
+```text Exemplo de resposta (204 No Content)
+(sem corpo de resposta)
+```

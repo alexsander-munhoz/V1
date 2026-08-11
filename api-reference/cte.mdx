@@ -1,7 +1,7 @@
 ---
 title: "API de CT-e: emitir e consultar Conhecimentos de Transporte"
 sidebarTitle: "CT-e"
-description: "Endpoints para emissão, consulta, cancelamento e eventos de CT-e (Conhecimento de Transporte Eletrônico) via API Brudam TMS."
+description: "Endpoints para emissão, consulta, cancelamento e registro de eventos de CT-e (Conhecimento de Transporte Eletrônico) via API Brudam TMS."
 ---
 
 A emissão de CT-e via API é a integração central para transportadoras que precisam enviar documentos fiscais de frete à SEFAZ por meio do Brudam TMS. O fluxo padrão consiste em emitir o CT-e, aguardar a autorização assíncrona (geralmente em segundos) e, em seguida, consultar o status ou configurar um webhook para receber a notificação automaticamente. Todos os endpoints exigem autenticação via Bearer Token no cabeçalho `Authorization`.

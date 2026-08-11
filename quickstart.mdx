@@ -1,7 +1,7 @@
 ---
-title: "Primeiros passos com o Brudam TMS"
+title: "Início Rápido: Integre com a API do Brudam TMS em 10 minutos"
 sidebarTitle: "Quickstart"
-description: "Aprenda como autenticar e fazer sua primeira chamada à API Brudam em menos de 10 minutos, com exemplos prontos para usar."
+description: "Aprenda como autenticar na API do Brudam TMS e fazer sua primeira chamada com exemplos prontos para copiar e executar diretamente no terminal."
 ---
 
 Esta página guia você pelos passos essenciais para realizar sua primeira chamada à API do Brudam TMS. Em menos de 10 minutos, você estará autenticado e consultando dados reais da sua operação de transporte.
@@ -22,10 +22,10 @@ Esta página guia você pelos passos essenciais para realizar sua primeira chama
   </Step>
 
   <Step title="Fazer primeira requisição">
-    Com o token em mãos, execute o comando abaixo no seu terminal para listar as entregas da sua operação:
+    Com o token em mãos, execute o comando abaixo no seu terminal para consultar o resumo financeiro da sua operação:
 
     ```bash
-    curl -X GET https://api.brudam.com.br/v1/entregas \
+    curl -X GET https://api.brudam.com.br/v1/financeiro \
       -H "Authorization: Bearer SEU_TOKEN_AQUI" \
       -H "Content-Type: application/json"
     ```
@@ -34,25 +34,18 @@ Esta página guia você pelos passos essenciais para realizar sua primeira chama
   </Step>
 
   <Step title="Interpretar a resposta">
-    Uma resposta bem-sucedida retorna um objeto JSON com a lista de entregas, o total de registros e a página atual. Veja um exemplo:
+    Uma resposta bem-sucedida retorna um objeto JSON com o resumo financeiro da sua transportadora. Veja um exemplo:
 
     ```json
     {
-      "data": [
-        {
-          "id": "f1e7be5c-1234-4abc-8def-000000000001",
-          "status": "em_transito",
-          "destinatario": "Empresa ABC Ltda",
-          "volumes": 3,
-          "previsao_entrega": "2025-08-15T18:00:00Z"
-        }
-      ],
-      "total": 1,
-      "pagina": 1
+      "saldo": 15240.50,
+      "contas_a_receber": 8320.00,
+      "contas_a_pagar": 3100.75,
+      "competencia": "2025-08"
     }
     ```
 
-    O campo `status` indica a situação atual da entrega. Os valores possíveis incluem `em_transito`, `entregue`, `pendente` e `ocorrencia`. Use o campo `id` para consultas e atualizações posteriores.
+    O campo `competencia` indica o mês de referência no formato `AAAA-MM`. Use os campos `contas_a_receber` e `contas_a_pagar` para conciliar seu fluxo de caixa. Para consultar ou atualizar uma entrega específica, utilize o endpoint `GET /v1/delivery/{id}` com o identificador correspondente.
   </Step>
 </Steps>
 

@@ -1,7 +1,7 @@
 ---
-title: "Autenticar na API Brudam TMS com token JWT"
+title: "Como autenticar na API Brudam TMS usando token JWT"
 sidebarTitle: "Autenticação"
-description: "Aprenda como gerar e usar tokens JWT para autenticar suas chamadas à API Brudam TMS, incluindo renovação e revogação de tokens."
+description: "Aprenda como gerar e usar tokens JWT para autenticar suas chamadas à API Brudam TMS, incluindo renovação, revogação e escopos de permissões."
 ---
 
 A API Brudam utiliza **tokens JWT Bearer** para autenticação. Toda requisição deve incluir seu token no cabeçalho `Authorization`. Os tokens são gerados diretamente no painel Brudam e expiram após **24 horas**.
@@ -28,12 +28,12 @@ A API Brudam utiliza **tokens JWT Bearer** para autenticação. Toda requisiçã
 
 ## Usando o token nas requisições
 
-Inclua o token no cabeçalho `Authorization` de todas as suas chamadas, seguindo o formato `Bearer <TOKEN>`.
+Inclua o token no cabeçalho `Authorization` de todas as suas chamadas, seguindo o formato `Bearer {seu_token}`. Substitua `{seu_token}` pelo token gerado no painel Brudam.
 
 <CodeGroup>
   ```bash cURL
   curl -X GET https://api.brudam.com.br/v1/entregas \
-    -H "Authorization: Bearer SEU_TOKEN_AQUI" \
+    -H "Authorization: Bearer {seu_token}" \
     -H "Content-Type: application/json"
   ```
 
@@ -41,7 +41,7 @@ Inclua o token no cabeçalho `Authorization` de todas as suas chamadas, seguindo
   import requests
 
   headers = {
-      "Authorization": "Bearer SEU_TOKEN_AQUI",
+      "Authorization": "Bearer {seu_token}",  # substitua pelo seu token real
       "Content-Type": "application/json"
   }
 
