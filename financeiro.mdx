@@ -1,0 +1,726 @@
+---
+title: "API Financeira: faturas e liquidação de lançamentos"
+sidebarTitle: "Financeiro"
+description: "Endpoints para consultar e cadastrar faturas, atualizar dados de fatura e liquidar lançamentos financeiros."
+---
+
+Todos os endpoints exigem autenticação via Bearer Token no cabeçalho `Authorization`.
+
+---
+
+## Consultar faturas
+
+Efetua consulta de lancamentos
+
+**`GET /financeiro/faturas`**
+
+### Parâmetros de query
+
+<ParamField query="emissao[gt]" type="string">
+  
+</ParamField>
+
+<ParamField query="emissao[gte]" type="string">
+  
+</ParamField>
+
+<ParamField query="emissao[lt]" type="string">
+  
+</ParamField>
+
+<ParamField query="emissao[lte]" type="string">
+  
+</ParamField>
+
+<ParamField query="emissao[eq]" type="string">
+  
+</ParamField>
+
+<ParamField query="vencimento[gt]" type="string">
+  
+</ParamField>
+
+<ParamField query="vencimento[gte]" type="string">
+  
+</ParamField>
+
+<ParamField query="vencimento[lt]" type="string">
+  
+</ParamField>
+
+<ParamField query="vencimento[lte]" type="string">
+  
+</ParamField>
+
+<ParamField query="vencimento[eq]" type="string">
+  
+</ParamField>
+
+<ParamField query="status" type="integer">
+  Valores aceitos: `0`, `1`, `2`.
+</ParamField>
+
+<ParamField query="status[eq]" type="integer">
+  Valores aceitos: `0`, `1`, `2`.
+</ParamField>
+
+<ParamField query="status[in]" type="string">
+  
+</ParamField>
+
+<ParamField query="status[nin]" type="string">
+  
+</ParamField>
+
+<ParamField query="cnpj" type="string">
+  
+</ParamField>
+
+<ParamField query="id" type="integer">
+  
+</ParamField>
+
+<ParamField query="id[ne]" type="integer">
+  
+</ParamField>
+
+<ParamField query="id[eq]" type="integer">
+  
+</ParamField>
+
+<ParamField query="id[gt]" type="integer">
+  
+</ParamField>
+
+<ParamField query="id[gte]" type="integer">
+  
+</ParamField>
+
+<ParamField query="id[lt]" type="integer">
+  
+</ParamField>
+
+<ParamField query="id[lte]" type="integer">
+  
+</ParamField>
+
+<ParamField query="id[in]" type="string">
+  
+</ParamField>
+
+<ParamField query="id[nin]" type="string">
+  
+</ParamField>
+
+<ParamField query="limit" type="integer">
+  
+</ParamField>
+
+<ParamField query="skip" type="integer">
+  
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/financeiro/faturas?emissao[gt]=valor" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Encontrado com sucesso
+
+```json
+{
+  "message": "OK",
+  "status": 1,
+  "data": {
+    "status": 1,
+    "qtd_lancamentos": 1,
+    "documentos": [
+      {
+        "id": 20533,
+        "id_cliente": 444,
+        "cnpj_cliente": "00111222000010",
+        "status": 1,
+        "status_descricao": "LIQUIDADO",
+        "valor": 579.50,
+        "emissao": "2026-06-02",
+        "data_vencimento": "2026-08-03",
+        "parcela": 1,
+        "nparcela": 1,
+        "tipo": "A receber",
+        "fatura": 1
+      }
+    ]
+  }
+}
+```
+
+**`400`** — Se os dados enviados estiverem incorretos
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+**`401`** — Se o usuário não possui permissão para acessar a URL informada ou o TOKEN não for informado.
+
+```json
+{
+  "message": "Acesso não autorizado",
+  "status": 0
+}
+```
+
+**`403`** — Se os dados de usuário estão incorretos.
+
+```json
+{
+  "message": "Acesso negado!",
+  "status": 0
+}
+```
+
+**`404`** — Se a URL informada não for encontrada
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`405`** — Se a URL chamada não suporta o método utilizado
+
+```json
+{
+  "message": "Método não permitido!",
+  "status": 0
+}
+```
+
+---
+
+## Cadastrar fatura
+
+Efetua inclusão de faturas
+
+**`POST /financeiro/faturas`**
+
+### Corpo da requisição
+
+<ParamField body="dEmis" type="string" required>
+  Data de emissão da fatura. Formato AAAA-MM-DD.
+</ParamField>
+
+<ParamField body="dVecto" type="string" required>
+  Data de vencimento da fatura. Formato AAAA-MM-DD.
+</ParamField>
+
+<ParamField body="compet" type="string" required>
+  Competência da fatura. Formato AAAA-MM-DD
+</ParamField>
+
+<ParamField body="nFat" type="integer" required>
+  Número da fatura.
+</ParamField>
+
+<ParamField body="nDocEmit" type="integer" required>
+  CNPJ do emitente.
+</ParamField>
+
+<ParamField body="nDocCli" type="integer" required>
+  CNPJ do cliente.
+</ParamField>
+
+<ParamField body="vFat" type="number" required>
+  Valor da fatura.
+</ParamField>
+
+<ParamField body="vDesc" type="number">
+  Valor de desconto.
+</ParamField>
+
+<ParamField body="vAcre" type="number">
+  Valor de acréscimo.
+</ParamField>
+
+<ParamField body="xDescr" type="string">
+  Descrição da fatura.
+</ParamField>
+
+<ParamField body="xObs" type="string">
+  Observação da fatura.
+</ParamField>
+
+<ParamField body="cStatus" type="integer" required>
+  Status da fatura. 0-pendente; 1-liquidado; 2-cancelado;
+</ParamField>
+
+<ParamField body="formaPagto" type="string" required>
+  Forma de pagamento: 2-boleto; 3-cheque - à vista; 4-depósito; 5-dinheiro; 6-fatura
+
+  Valores aceitos: `2`, `3`, `4`, `5`, `6`.
+</ParamField>
+
+<ParamField body="cContaBanc" type="integer">
+  Código da conta bancária da empresa emitente da fatura. Opcional; quando omitido, mantém a conta definida no cadastro atual.
+</ParamField>
+
+<ParamField body="naturezas" type="array of objects">
+  Lista opcional de rateio por natureza financeira. Quando enviada, a soma de vNatureza deve ser igual ao vFat.
+
+  <Expandable title="Cada item de naturezas">
+    <ParamField body="cNatureza" type="integer" required>
+      Código da natureza financeira.
+    </ParamField>
+    <ParamField body="vNatureza" type="number" required>
+      Valor vinculado à natureza.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="departamentos" type="array of objects">
+  Lista opcional de rateio por departamento. Quando enviada, a soma de vDepto deve ser igual ao vFat.
+
+  <Expandable title="Cada item de departamentos">
+    <ParamField body="cDepto" type="integer" required>
+      Código do departamento.
+    </ParamField>
+    <ParamField body="vDepto" type="number" required>
+      Valor vinculado ao departamento.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="documentos" type="array of objects">
+  
+
+  <Expandable title="Cada item de documentos">
+    <ParamField body="tpDoc" type="string" required>
+      Tipo de documento.
+
+      Valores aceitos: `cte`, `nfe`, `minuta`.
+    </ParamField>
+    <ParamField body="nDoc" type="integer">
+      Número do documento.
+    </ParamField>
+    <ParamField body="chave" type="string">
+      chave da nota/minuta/cte.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://{cliente}.brudam.com.br/api/v1/financeiro/faturas" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+  "dEmis": "string",
+  "dVecto": "string",
+  "compet": "string",
+  "nFat": 0
+}'
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Encontrado com sucesso
+
+```json
+{
+  "status": 1,
+  "message": "OK",
+  "data": {
+    "id": 10,
+    "docs": [
+      {
+        "tpDoc": "minuta",
+        "nDoc": 22,
+        "status": 1,
+        "message": "Incluida na fatura"
+      }
+    ]
+  }
+}
+```
+
+**`400`** — Se os dados enviados estiverem incorretos
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+**`401`** — Se o usuário não possui permissão para acessar a URL informada ou o TOKEN não for informado.
+
+```json
+{
+  "message": "Acesso não autorizado",
+  "status": 0
+}
+```
+
+**`403`** — Se os dados de usuário estão incorretos.
+
+```json
+{
+  "message": "Acesso negado!",
+  "status": 0
+}
+```
+
+**`404`** — Se a URL informada não for encontrada
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`405`** — Se a URL chamada não suporta o método utilizado
+
+```json
+{
+  "message": "Método não permitido!",
+  "status": 0
+}
+```
+
+---
+
+## Atualizar fatura
+
+Atualiza os dados da fatura no sistema
+
+**`POST /financeiro/alteracao/fatura`**
+
+### Corpo da requisição
+
+<ParamField body="nFat" type="integer" required>
+  Número da fatura.
+</ParamField>
+
+<ParamField body="vFat" type="number">
+  Valor da fatura.
+</ParamField>
+
+<ParamField body="cStatus" type="integer">
+  Status da fatura. 0-pendente; 1-liquidado; 2-cancelado;
+</ParamField>
+
+<ParamField body="dVecto" type="string">
+  Data de vencimento da fatura. Formato AAAA-MM-DD.
+</ParamField>
+
+<ParamField body="nDocEmit" type="integer" required>
+  CNPJ do emitente.
+</ParamField>
+
+<ParamField body="nDocCli" type="integer" required>
+  CNPJ do cliente.
+</ParamField>
+
+<ParamField body="vDesc" type="number">
+  Valor de desconto.
+</ParamField>
+
+<ParamField body="vAcre" type="number">
+  Valor de acréscimo.
+</ParamField>
+
+<ParamField body="xDescr" type="string">
+  Descrição da fatura.
+</ParamField>
+
+<ParamField body="xObs" type="string">
+  Observação da fatura.
+</ParamField>
+
+<ParamField body="formaPagto" type="string">
+  Forma de pagamento.
+
+  Valores aceitos: `2`, `3`, `4`, `5`, `6`.
+</ParamField>
+
+<ParamField body="documentos" type="array of objects">
+  
+
+  <Expandable title="Cada item de documentos">
+    <ParamField body="tpDoc" type="string" required>
+      Tipo de documento.
+
+      Valores aceitos: `cte`, `nfe`, `minuta`.
+    </ParamField>
+    <ParamField body="nDoc" type="integer">
+      Número do documento.
+    </ParamField>
+    <ParamField body="chave" type="string">
+      chave da nota/minuta/cte.
+    </ParamField>
+    <ParamField body="operacao" type="string" required>
+      Operação da fatura. R-remover; I-incluir;
+
+      Valores aceitos: `R`, `I`.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://{cliente}.brudam.com.br/api/v1/financeiro/alteracao/fatura" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+  "nFat": 0,
+  "vFat": 0,
+  "cStatus": 0,
+  "dVecto": "string"
+}'
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Encontrado com sucesso
+
+```json
+{
+  "status": 1,
+  "message": "OK",
+  "data": {
+    "id": 10,
+    "docs": [
+      {
+        "tpDoc": "minuta",
+        "nDoc": 22,
+        "status": 1,
+        "message": "Fatura alterada"
+      }
+    ]
+  }
+}
+```
+
+**`400`** — Se os dados enviados estiverem incorretos
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+**`401`** — Se o usuário não possui permissão para acessar a URL informada ou o TOKEN não for informado.
+
+```json
+{
+  "message": "Acesso não autorizado",
+  "status": 0
+}
+```
+
+**`403`** — Se os dados de usuário estão incorretos.
+
+```json
+{
+  "message": "Acesso negado!",
+  "status": 0
+}
+```
+
+**`404`** — Se a URL informada não for encontrada
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`405`** — Se a URL chamada não suporta o método utilizado
+
+```json
+{
+  "message": "Método não permitido!",
+  "status": 0
+}
+```
+
+---
+
+## Liquidar lançamento financeiro
+
+Realiza a liquidação de lançamentos financeiro
+
+**`POST /financeiro/liquidar/lancamento`**
+
+### Corpo da requisição
+
+<ParamField body="documentos" type="array of objects" required>
+  Lista de lançamentos a serem liquidados
+
+  <Expandable title="Cada item de documentos">
+    <ParamField body="id_lancamento" type="integer" required>
+      Identificador do lançamento
+    </ParamField>
+    <ParamField body="data_pagamento" type="string" required>
+      Data do pagamento (formato: YYYY-MM-DD)
+    </ParamField>
+    <ParamField body="forma_pagamento" type="integer" required>
+      Forma de pagamento (ex: 2 - Boleto)
+    </ParamField>
+    <ParamField body="data_credito_debito" type="string">
+      Data em que o valor foi creditado ou debitado
+    </ParamField>
+    <ParamField body="valor_juros" type="number">
+      Valor dos juros aplicados
+    </ParamField>
+    <ParamField body="valor_liquidado" type="number" required>
+      Valor total liquidado
+    </ParamField>
+    <ParamField body="conta_bancaria" type="integer" required>
+      Identificador da conta bancária utilizada
+    </ParamField>
+    <ParamField body="anexo" type="array of objects">
+      Lista de arquivos anexados (base64 ou url)
+
+      <Expandable title="Cada item de anexo">
+        <ParamField body="nome" type="string" required>
+          Nome do arquivo (ex: comprovante.jpg)  ou url do arquivo
+        </ParamField>
+        <ParamField body="dados" type="string">
+          Conteúdo do arquivo em base64 (opcional)
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://{cliente}.brudam.com.br/api/v1/financeiro/liquidar/lancamento" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+  "documentos": [
+    {
+      "id_lancamento": 0,
+      "data_pagamento": "string",
+      "forma_pagamento": 0,
+      "data_credito_debito": "string"
+    }
+  ]
+}'
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Consulta realizada com sucesso
+
+```json
+{
+  "message": "OK",
+  "status": 1,
+  "data": {
+    "status": 1,
+    "ids": [
+      84583298,
+      84583299
+    ]
+  }
+}
+```
+
+**`400`** — Se os dados enviados estiverem incorretos
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+**`401`** — Se o usuário não possui permissão para acessar a URL informada ou o TOKEN não for informado.
+
+```json
+{
+  "message": "Acesso não autorizado",
+  "status": 0
+}
+```
+
+**`403`** — Se os dados de usuário estão incorretos.
+
+```json
+{
+  "message": "Acesso negado!",
+  "status": 0
+}
+```
+
+**`404`** — Se a URL informada não for encontrada
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`405`** — Se a URL chamada não suporta o método utilizado
+
+```json
+{
+  "message": "Método não permitido!",
+  "status": 0
+}
+```
+
+---

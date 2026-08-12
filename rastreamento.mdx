@@ -1,0 +1,1489 @@
+---
+title: "API de Rastreamento: ocorrências de entrega"
+sidebarTitle: "Rastreamento"
+description: "Endpoints para registrar ocorrências de entrega e consultar o histórico de ocorrências por NF-e, CT-e, minuta, coleta, pedido, CNPJ ou autorização de frete."
+---
+
+Todos os endpoints exigem autenticação via Bearer Token no cabeçalho `Authorization`.
+
+---
+
+## Registrar ocorrência de entrega
+
+Insere no sistema ocorrências para uma entrega
+
+**`POST /tracking/ocorrencias`**
+
+### Corpo da requisição
+
+<ParamField body="auth" type="object">
+  Opcional. Só deve ser enviado caso o cabeçalho Authorization não for utilizado.
+
+  <Expandable title="Propriedades de auth">
+    <ParamField body="usuario" type="string">
+  
+    </ParamField>
+    <ParamField body="senha" type="string">
+  
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="documentos" type="array of objects">
+  
+
+  <Expandable title="Cada item de documentos">
+    <ParamField body="cliente" type="string" required>
+      CNPJ do cliente. Quando o tipo for manifesto ou despacho, CNPJ não é obrigatório.
+    </ParamField>
+    <ParamField body="tipo" type="string" required>
+      Valores aceitos: `PEDIDO`, `NF`, `NFE`, `CTE`, `MINUTA`, `COLETA`, `MANIFESTO`, `DESPACHO`.
+    </ParamField>
+    <ParamField body="tipo_op" type="string">
+      Valores aceitos: `MINUTA`, `COLETA`.
+    </ParamField>
+    <ParamField body="numero" type="integer">
+      Campo obrigatório quando o tipo igual a NF ou PEDIDO
+    </ParamField>
+    <ParamField body="serie" type="string">
+      Campo obrigatório quando o tipo igual a NF
+    </ParamField>
+    <ParamField body="chave" type="string">
+      Campo obrigatório quando o tipo igual a NFE ou CTE
+    </ParamField>
+    <ParamField body="minuta" type="integer">
+      Campo obrigatório quando o tipo igual a MINUTA
+    </ParamField>
+    <ParamField body="coleta" type="integer">
+      Campo obrigatório quando o tipo igual a COLETA
+    </ParamField>
+    <ParamField body="manifesto" type="integer">
+      Campo obrigatório quando o tipo igual a MANIFESTO
+    </ParamField>
+    <ParamField body="awb" type="integer">
+      Campo obrigatório quando o tipo igual a DESPACHO
+    </ParamField>
+    <ParamField body="eventos" type="array of objects" required>
+      Lista de eventos
+
+      <Expandable title="Cada item de eventos">
+        <ParamField body="codigo" type="integer" required>
+          Código da ocorrência no sistema Brudam
+        </ParamField>
+        <ParamField body="data" type="string" required>
+          Data e hora da ocorrência
+        </ParamField>
+        <ParamField body="obs" type="string">
+          Observação
+        </ParamField>
+        <ParamField body="recebedor" type="object">
+          Caso enviado o campo recebedor, os campos 'nome' e 'documento' são obrigatórios
+
+          <Expandable title="Propriedades de recebedor">
+            <ParamField body="nome" type="string" required>
+              Nome do recebedor
+            </ParamField>
+            <ParamField body="documento" type="string" required>
+              Documento do recebedor
+            </ParamField>
+            <ParamField body="grau" type="string">
+              Grau de parentesco
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="agendamento" type="object">
+  
+
+          <Expandable title="Propriedades de agendamento">
+            <ParamField body="data" type="string">
+              Data do agendamento
+            </ParamField>
+            <ParamField body="hIni" type="string">
+              Hora inicial
+            </ParamField>
+            <ParamField body="hFim" type="string">
+              Hora final
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="localizacao" type="object">
+          Coordenadas geográficas do evento (opcional), latitude e longitude.
+
+          <Expandable title="Propriedades de localizacao">
+            <ParamField body="latitude" type="number">
+  
+            </ParamField>
+            <ParamField body="longitude" type="number">
+  
+            </ParamField>
+          </Expandable>
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="anexos" type="array of objects">
+      Lista de anexos
+
+      <Expandable title="Cada item de anexos">
+        <ParamField body="arquivo" type="object">
+  
+
+          <Expandable title="Propriedades de arquivo">
+            <ParamField body="nome" type="string" required>
+              Nome ou URL do arquivo
+            </ParamField>
+            <ParamField body="dados" type="string">
+              Conteúdo do arquivo em *Base64* quando **Nome** não for uma URL
+            </ParamField>
+          </Expandable>
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://{cliente}.brudam.com.br/api/v1/tracking/ocorrencias" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+  "auth": {
+    "usuario": "string",
+    "senha": "string"
+  },
+  "documentos": [
+    {
+      "cliente": "string",
+      "tipo": "PEDIDO",
+      "tipo_op": "MINUTA",
+      "numero": 0
+    }
+  ]
+}'
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Evento(s) registrado(s) com sucesso!
+
+```json
+{
+  "message": "OK",
+  "status": 1,
+  "data": [
+    {
+      "cliente": "02801696000180",
+      "tipo": "MINUTA",
+      "minuta": "143636",
+      "eventos": [
+        {
+          "codigo": 150,
+          "data": "2019-06-04 13:21:25",
+          "obs": null
+        }
+      ],
+      "numero": null,
+      "serie": null,
+      "chave": null,
+      "anexos": null,
+      "status": "1",
+      "message": "Evento(s) registrado(s) com sucesso!",
+      "messages": [
+        {
+          "status": 0,
+          "codigo": 26,
+          "message": "Ocorrência já foi inserida nesta coleta!"
+        },
+        {
+          "status": 1,
+          "codigo": 91,
+          "message": "Ocorrência inserida com sucesso!"
+        }
+      ]
+    }
+  ]
+}
+```
+
+**`400`** — Se os dados enviados estiverem incorretos
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+**`401`** — Se o usuário não possui permissão para acessar a URL informada ou o TOKEN não for informado.
+
+```json
+{
+  "message": "Acesso não autorizado",
+  "status": 0
+}
+```
+
+**`403`** — Se os dados de usuário estão incorretos.
+
+```json
+{
+  "message": "Acesso negado!",
+  "status": 0
+}
+```
+
+**`404`** — Se a URL informada não for encontrada
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`405`** — Se a URL chamada não suporta o método utilizado
+
+```json
+{
+  "message": "Método não permitido!",
+  "status": 0
+}
+```
+
+---
+
+## Consultar ocorrências por NF-e
+
+Busca no sistema as ocorrências para uma determinada NF-e ou lista de NF-es.
+
+**`GET /tracking/ocorrencias/nfe`**
+
+### Parâmetros de query
+
+<ParamField query="chave" type="string" required>
+  
+</ParamField>
+
+<ParamField query="comprovante" type="integer">
+  Valores aceitos: `0`, `1`.
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/tracking/ocorrencias/nfe?chave=valor" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Evento(s) encontrado(s) com sucesso!
+
+```json
+// Exemplo original do Swagger (contém comentários inline // no próprio texto-fonte)
+{
+  "message": "OK",
+  //Status geral "status": 1,
+  //Status geral "data": [
+    // Dados processados {
+      "status": 1,
+      //Status de processamento do documento "message":"OK",
+      //Msg de processamento do documento "documento":"129009",
+      //Número do documento processado "dados": [
+        //Ocorrencias {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"99",
+          "data":"2019-06-06 14:51:00",
+          "obs":"Coleta Alterada de 0 para 50",
+          "descricao":"OUTROS TIPOS DE OCORRENCIAS NAO ESPECIFICADOS ACIMA",
+          "usuario":"BRD.ANDREALVES"
+        },
+        {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"165",
+          "data":"2019-06-06 09:25:12",
+          "obs":"3872",
+          "descricao":"MANIFESTADO",
+          "usuario":"BRD.ANDREALVES",
+          "cte_numero":"21212-1",
+          "cte_cnpj_emissor":"16691040000171",
+          "cte_aut_data":"2020-07-21",
+          "nf_numero":"154",
+          "razao_remetente":"BRUDAM - LTDA",
+          "cnpj_remetente":"67649269040174",
+          "razao_destinatario":"BRUDAM LOG",
+          "cnpj_destinatario":"88630413004281",
+          "servico":"SUB-CONTRATO",
+          "entrega_nome":"SAVIO",
+          "entrega_rg":"6258566336",
+          "entrega_grau":"PRIMO",
+          "data_entrega":"2020-11-05",
+          "hora_entrega":"11:30",
+          "comprovante": [
+            {
+              "url":"https://dominio/entrega/dominio/2021/06/02/4b63e50520.jpeg"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+**`400`** — Se os dados enviados estiverem incorretos
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+**`401`** — Se o usuário não possui permissão para acessar a URL informada ou o TOKEN não for informado.
+
+```json
+{
+  "message": "Acesso não autorizado",
+  "status": 0
+}
+```
+
+**`403`** — Se os dados de usuário estão incorretos.
+
+```json
+{
+  "message": "Acesso negado!",
+  "status": 0
+}
+```
+
+**`404`** — Se a URL informada não for encontrada
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`405`** — Se a URL chamada não suporta o método utilizado
+
+```json
+{
+  "message": "Método não permitido!",
+  "status": 0
+}
+```
+
+---
+
+## Consultar ocorrências por CT-e
+
+Busca no sistema as ocorrências para um determinado CT-e ou lista de CT-es.
+
+**`GET /tracking/ocorrencias/cte`**
+
+### Parâmetros de query
+
+<ParamField query="chave" type="string" required>
+  
+</ParamField>
+
+<ParamField query="comprovante" type="integer">
+  Valores aceitos: `0`, `1`.
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/tracking/ocorrencias/cte?chave=valor" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Evento(s) encontrado(s) com sucesso!
+
+```json
+// Exemplo original do Swagger (contém comentários inline // no próprio texto-fonte)
+{
+  "message": "OK",
+  //Status geral "status": 1,
+  //Status geral "data": [
+    // Dados processados {
+      "status": 1,
+      //Status de processamento do documento "message":"OK",
+      //Msg de processamento do documento "documento":"129009",
+      //Número do documento processado "dados": [
+        //Ocorrencias {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"99",
+          "data":"2019-06-06 14:51:00",
+          "obs":"Coleta Alterada de 0 para 50",
+          "descricao":"OUTROS TIPOS DE OCORRENCIAS NAO ESPECIFICADOS ACIMA",
+          "usuario":"BRD.ANDREALVES"
+        },
+        {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"165",
+          "data":"2019-06-06 09:25:12",
+          "obs":"3872",
+          "descricao":"MANIFESTADO",
+          "usuario":"BRD.ANDREALVES",
+          "cte_numero":"21212-1",
+          "cte_cnpj_emissor":"16691040000171",
+          "cte_aut_data":"2020-07-21",
+          "nf_numero":"154",
+          "razao_remetente":"BRUDAM - LTDA",
+          "cnpj_remetente":"67649269040174",
+          "razao_destinatario":"BRUDAM LOG",
+          "cnpj_destinatario":"88630413004281",
+          "servico":"SUB-CONTRATO",
+          "entrega_nome":"SAVIO",
+          "entrega_rg":"6258566336",
+          "entrega_grau":"PRIMO",
+          "data_entrega":"2020-11-05",
+          "hora_entrega":"11:30",
+          "comprovante": [
+            {
+              "url":"https://dominio/entrega/dominio/2021/06/02/4b63e50520.jpeg"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+**`400`** — Se os dados enviados estiverem incorretos
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+**`401`** — Se o usuário não possui permissão para acessar a URL informada ou o TOKEN não for informado.
+
+```json
+{
+  "message": "Acesso não autorizado",
+  "status": 0
+}
+```
+
+**`403`** — Se os dados de usuário estão incorretos.
+
+```json
+{
+  "message": "Acesso negado!",
+  "status": 0
+}
+```
+
+**`404`** — Se a URL informada não for encontrada
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`405`** — Se a URL chamada não suporta o método utilizado
+
+```json
+{
+  "message": "Método não permitido!",
+  "status": 0
+}
+```
+
+---
+
+## Consultar ocorrências por minuta
+
+Busca no sistema as ocorrências para uma determinada Minuta ou lista de Minutas.
+
+**`GET /tracking/ocorrencias/minuta`**
+
+### Parâmetros de query
+
+<ParamField query="codigo" type="string" required>
+  
+</ParamField>
+
+<ParamField query="comprovante" type="integer">
+  Valores aceitos: `0`, `1`.
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/tracking/ocorrencias/minuta?codigo=valor" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Evento(s) encontrado(s) com sucesso!
+
+```json
+// Exemplo original do Swagger (contém comentários inline // no próprio texto-fonte)
+{
+  "message": "OK",
+  //Status geral "status": 1,
+  //Status geral "data": [
+    // Dados processados {
+      "status": 1,
+      //Status de processamento do documento "message":"OK",
+      //Msg de processamento do documento "documento":"129009",
+      //Número do documento processado "dados": [
+        //Ocorrencias {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"99",
+          "data":"2019-06-06 14:51:00",
+          "obs":"Coleta Alterada de 0 para 50",
+          "descricao":"OUTROS TIPOS DE OCORRENCIAS NAO ESPECIFICADOS ACIMA",
+          "usuario":"BRD.ANDREALVES"
+        },
+        {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"165",
+          "data":"2019-06-06 09:25:12",
+          "obs":"3872",
+          "descricao":"MANIFESTADO",
+          "usuario":"BRD.ANDREALVES",
+          "cte_numero":"21212-1",
+          "cte_cnpj_emissor":"16691040000171",
+          "cte_aut_data":"2020-07-21",
+          "nf_numero":"154",
+          "razao_remetente":"BRUDAM - LTDA",
+          "cnpj_remetente":"67649269040174",
+          "razao_destinatario":"BRUDAM LOG",
+          "cnpj_destinatario":"88630413004281",
+          "servico":"SUB-CONTRATO",
+          "entrega_nome":"SAVIO",
+          "entrega_rg":"6258566336",
+          "entrega_grau":"PRIMO",
+          "data_entrega":"2020-11-05",
+          "hora_entrega":"11:30",
+          "comprovante": [
+            {
+              "url":"https://dominio/entrega/dominio/2021/06/02/4b63e50520.jpeg"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+**`400`** — Se os dados enviados estiverem incorretos
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+**`401`** — Se o usuário não possui permissão para acessar a URL informada ou o TOKEN não for informado.
+
+```json
+{
+  "message": "Acesso não autorizado",
+  "status": 0
+}
+```
+
+**`403`** — Se os dados de usuário estão incorretos.
+
+```json
+{
+  "message": "Acesso negado!",
+  "status": 0
+}
+```
+
+**`404`** — Se a URL informada não for encontrada
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`405`** — Se a URL chamada não suporta o método utilizado
+
+```json
+{
+  "message": "Método não permitido!",
+  "status": 0
+}
+```
+
+---
+
+## Consultar ocorrências por coleta
+
+Busca no sistema as ocorrências para uma determinada Coleta ou lista de Coletas.
+
+**`GET /tracking/ocorrencias/coleta`**
+
+### Parâmetros de query
+
+<ParamField query="codigo" type="string" required>
+  
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/tracking/ocorrencias/coleta?codigo=valor" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Evento(s) encontrado(s) com sucesso!
+
+```json
+// Exemplo original do Swagger (contém comentários inline // no próprio texto-fonte)
+{
+  "message": "OK",
+  //Status geral "status": 1,
+  //Status geral "data": [
+    // Dados processados {
+      "status": 1,
+      //Status de processamento do documento "message":"OK",
+      //Msg de processamento do documento "documento":"129009",
+      //Número do documento processado "dados": [
+        //Ocorrencias {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"99",
+          "data":"2019-06-06 14:51:00",
+          "obs":"Coleta Alterada de 0 para 50",
+          "descricao":"OUTROS TIPOS DE OCORRENCIAS NAO ESPECIFICADOS ACIMA",
+          "usuario":"BRD.ANDREALVES"
+        },
+        {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"165",
+          "data":"2019-06-06 09:25:12",
+          "obs":"3872",
+          "descricao":"MANIFESTADO",
+          "usuario":"BRD.ANDREALVES",
+          "cte_numero":"21212-1",
+          "cte_cnpj_emissor":"16691040000171",
+          "cte_aut_data":"2020-07-21",
+          "nf_numero":"154",
+          "razao_remetente":"BRUDAM - LTDA",
+          "cnpj_remetente":"67649269040174",
+          "razao_destinatario":"BRUDAM LOG",
+          "cnpj_destinatario":"88630413004281",
+          "servico":"SUB-CONTRATO",
+          "entrega_nome":"SAVIO",
+          "entrega_rg":"6258566336",
+          "entrega_grau":"PRIMO",
+          "data_entrega":"2020-11-05",
+          "hora_entrega":"11:30",
+          "comprovante": [
+            {
+              "url":"https://dominio/entrega/dominio/2021/06/02/4b63e50520.jpeg"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+**`400`** — Se os dados enviados estiverem incorretos
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+**`401`** — Se o usuário não possui permissão para acessar a URL informada ou o TOKEN não for informado.
+
+```json
+{
+  "message": "Acesso não autorizado",
+  "status": 0
+}
+```
+
+**`403`** — Se os dados de usuário estão incorretos.
+
+```json
+{
+  "message": "Acesso negado!",
+  "status": 0
+}
+```
+
+**`404`** — Se a URL informada não for encontrada
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`405`** — Se a URL chamada não suporta o método utilizado
+
+```json
+{
+  "message": "Método não permitido!",
+  "status": 0
+}
+```
+
+---
+
+## Consultar ocorrências de CT-e por CNPJ
+
+Busca no sistema as ocorrências para um determinado CTe e um remetente ou destinatário específico.
+
+**`GET /tracking/ocorrencias/cnpj/cte`**
+
+### Parâmetros de query
+
+<ParamField query="documento" type="string" required>
+  
+</ParamField>
+
+<ParamField query="numero" type="string" required>
+  
+</ParamField>
+
+<ParamField query="comprovante" type="integer">
+  Valores aceitos: `0`, `1`.
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/tracking/ocorrencias/cnpj/cte?documento=valor&numero=valor" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Evento(s) encontrado(s) com sucesso!
+
+```json
+// Exemplo original do Swagger (contém comentários inline // no próprio texto-fonte)
+{
+  "message": "OK",
+  //Status geral "status": 1,
+  //Status geral "data": [
+    // Dados processados {
+      "status": 1,
+      //Status de processamento do documento "message":"OK",
+      //Msg de processamento do documento "documento":"129009",
+      //Número do documento processado "dados": [
+        //Ocorrencias {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"99",
+          "data":"2019-06-06 14:51:00",
+          "obs":"Coleta Alterada de 0 para 50",
+          "descricao":"OUTROS TIPOS DE OCORRENCIAS NAO ESPECIFICADOS ACIMA",
+          "usuario":"BRD.ANDREALVES"
+        },
+        {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"165",
+          "data":"2019-06-06 09:25:12",
+          "obs":"3872",
+          "descricao":"MANIFESTADO",
+          "usuario":"BRD.ANDREALVES",
+          "cte_numero":"21212-1",
+          "cte_cnpj_emissor":"16691040000171",
+          "cte_aut_data":"2020-07-21",
+          "nf_numero":"154",
+          "razao_remetente":"BRUDAM - LTDA",
+          "cnpj_remetente":"67649269040174",
+          "razao_destinatario":"BRUDAM LOG",
+          "cnpj_destinatario":"88630413004281",
+          "servico":"SUB-CONTRATO",
+          "entrega_nome":"SAVIO",
+          "entrega_rg":"6258566336",
+          "entrega_grau":"PRIMO",
+          "data_entrega":"2020-11-05",
+          "hora_entrega":"11:30",
+          "comprovante": [
+            {
+              "url":"https://dominio/entrega/dominio/2021/06/02/4b63e50520.jpeg"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+**`400`** — Se os dados enviados estiverem incorretos
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+**`401`** — Se o usuário não possui permissão para acessar a URL informada ou o TOKEN não for informado.
+
+```json
+{
+  "message": "Acesso não autorizado",
+  "status": 0
+}
+```
+
+**`403`** — Se os dados de usuário estão incorretos.
+
+```json
+{
+  "message": "Acesso negado!",
+  "status": 0
+}
+```
+
+**`404`** — Se a URL informada não for encontrada
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`405`** — Se a URL chamada não suporta o método utilizado
+
+```json
+{
+  "message": "Método não permitido!",
+  "status": 0
+}
+```
+
+---
+
+## Consultar ocorrências de NF por CNPJ
+
+Busca no sistema as ocorrências para uma determinada NF e um remetente ou destinatário específico.
+
+**`GET /tracking/ocorrencias/cnpj/nf`**
+
+### Parâmetros de query
+
+<ParamField query="documento" type="string" required>
+  
+</ParamField>
+
+<ParamField query="numero" type="string" required>
+  
+</ParamField>
+
+<ParamField query="comprovante" type="integer">
+  Valores aceitos: `0`, `1`.
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/tracking/ocorrencias/cnpj/nf?documento=valor&numero=valor" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Evento(s) encontrado(s) com sucesso!
+
+```json
+// Exemplo original do Swagger (contém comentários inline // no próprio texto-fonte)
+{
+  "message": "OK",
+  //Status geral "status": 1,
+  //Status geral "data": [
+    // Dados processados {
+      "status": 1,
+      //Status de processamento do documento "message":"OK",
+      //Msg de processamento do documento "documento":"129009",
+      //Número do documento processado "dados": [
+        //Ocorrencias {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"99",
+          "data":"2019-06-06 14:51:00",
+          "obs":"Coleta Alterada de 0 para 50",
+          "descricao":"OUTROS TIPOS DE OCORRENCIAS NAO ESPECIFICADOS ACIMA",
+          "usuario":"BRD.ANDREALVES"
+        },
+        {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"165",
+          "data":"2019-06-06 09:25:12",
+          "obs":"3872",
+          "descricao":"MANIFESTADO",
+          "usuario":"BRD.ANDREALVES",
+          "cte_numero":"21212-1",
+          "cte_cnpj_emissor":"16691040000171",
+          "cte_aut_data":"2020-07-21",
+          "nf_numero":"154",
+          "razao_remetente":"BRUDAM - LTDA",
+          "cnpj_remetente":"67649269040174",
+          "razao_destinatario":"BRUDAM LOG",
+          "cnpj_destinatario":"88630413004281",
+          "servico":"SUB-CONTRATO",
+          "entrega_nome":"SAVIO",
+          "entrega_rg":"6258566336",
+          "entrega_grau":"PRIMO",
+          "data_entrega":"2020-11-05",
+          "hora_entrega":"11:30",
+          "status_minuta":"1",
+          "comprovante": [
+            {
+              "url":"https://dominio/entrega/dominio/2021/06/02/4b63e50520.jpeg"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+**`400`** — Se os dados enviados estiverem incorretos
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+**`401`** — Se o usuário não possui permissão para acessar a URL informada ou o TOKEN não for informado.
+
+```json
+{
+  "message": "Acesso não autorizado",
+  "status": 0
+}
+```
+
+**`403`** — Se os dados de usuário estão incorretos.
+
+```json
+{
+  "message": "Acesso negado!",
+  "status": 0
+}
+```
+
+**`404`** — Se a URL informada não for encontrada
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`405`** — Se a URL chamada não suporta o método utilizado
+
+```json
+{
+  "message": "Método não permitido!",
+  "status": 0
+}
+```
+
+---
+
+## Consultar ocorrências por pedido/NF-e
+
+Busca no sistema as ocorrências para uma determinada NF-e.
+
+**`GET /tracking/ocorrencias/pedidonf`**
+
+### Parâmetros de query
+
+<ParamField query="numero" type="string" required>
+  
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/tracking/ocorrencias/pedidonf?numero=valor" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Evento(s) encontrado(s) com sucesso!
+
+```json
+// Exemplo original do Swagger (contém comentários inline // no próprio texto-fonte)
+{
+  "message": "OK",
+  //Status geral "status": 1,
+  //Status geral "data": [
+    // Dados processados {
+      "status": 1,
+      //Status de processamento do documento "message":"OK",
+      //Msg de processamento do documento "documento":"129009",
+      //Número do documento processado "dados": [
+        //Ocorrencias {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"99",
+          "data":"2019-06-06 14:51:00",
+          "obs":"Coleta Alterada de 0 para 50",
+          "descricao":"OUTROS TIPOS DE OCORRENCIAS NAO ESPECIFICADOS ACIMA",
+          "usuario":"BRD.ANDREALVES"
+        },
+        {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"165",
+          "data":"2019-06-06 09:25:12",
+          "obs":"3872",
+          "descricao":"MANIFESTADO",
+          "usuario":"BRD.ANDREALVES",
+          "cte_numero":"21212-1",
+          "cte_cnpj_emissor":"16691040000171",
+          "cte_aut_data":"2020-07-21",
+          "nf_numero":"154",
+          "razao_remetente":"BRUDAM - LTDA",
+          "cnpj_remetente":"67649269040174",
+          "razao_destinatario":"BRUDAM LOG",
+          "cnpj_destinatario":"88630413004281",
+          "servico":"SUB-CONTRATO",
+          "entrega_nome":"SAVIO",
+          "entrega_rg":"6258566336",
+          "entrega_grau":"PRIMO",
+          "data_entrega":"2020-11-05",
+          "hora_entrega":"11:30",
+          "comprovante": [
+            {
+              "url":"https://dominio/entrega/dominio/2021/06/02/4b63e50520.jpeg"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+**`400`** — Se os dados enviados estiverem incorretos
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+**`401`** — Se o usuário não possui permissão para acessar a URL informada ou o TOKEN não for informado.
+
+```json
+{
+  "message": "Acesso não autorizado",
+  "status": 0
+}
+```
+
+**`403`** — Se os dados de usuário estão incorretos.
+
+```json
+{
+  "message": "Acesso negado!",
+  "status": 0
+}
+```
+
+**`404`** — Se a URL informada não for encontrada
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`405`** — Se a URL chamada não suporta o método utilizado
+
+```json
+{
+  "message": "Método não permitido!",
+  "status": 0
+}
+```
+
+---
+
+## Consultar ocorrências por pedido
+
+Busca no sistema as ocorrências para uma determinada NF-e.
+
+**`GET /tracking/ocorrencias/pedido`**
+
+### Parâmetros de query
+
+<ParamField query="pedidos" type="string" required>
+  
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/tracking/ocorrencias/pedido?pedidos=valor" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Evento(s) encontrado(s) com sucesso!
+
+```json
+// Exemplo original do Swagger (contém comentários inline // no próprio texto-fonte)
+{
+  "message": "OK",
+  //Status geral "status": 1,
+  //Status geral "data": [
+    // Dados processados {
+      "status": 1,
+      //Status de processamento do documento "message":"OK",
+      //Msg de processamento do documento "documento":"129009",
+      //Número do documento processado "dados": [
+        //Ocorrencias {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"99",
+          "data":"2019-06-06 14:51:00",
+          "obs":"Coleta Alterada de 0 para 50",
+          "descricao":"OUTROS TIPOS DE OCORRENCIAS NAO ESPECIFICADOS ACIMA",
+          "usuario":"BRD.ANDREALVES"
+        },
+        {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"165",
+          "data":"2019-06-06 09:25:12",
+          "obs":"3872",
+          "descricao":"MANIFESTADO",
+          "usuario":"BRD.ANDREALVES",
+          "cte_numero":"21212-1",
+          "cte_cnpj_emissor":"16691040000171",
+          "cte_aut_data":"2020-07-21",
+          "nf_numero":"154",
+          "razao_remetente":"BRUDAM - LTDA",
+          "cnpj_remetente":"67649269040174",
+          "razao_destinatario":"BRUDAM LOG",
+          "cnpj_destinatario":"88630413004281",
+          "servico":"SUB-CONTRATO",
+          "entrega_nome":"SAVIO",
+          "entrega_rg":"6258566336",
+          "entrega_grau":"PRIMO",
+          "data_entrega":"2020-11-05",
+          "hora_entrega":"11:30",
+          "comprovante": [
+            {
+              "url":"https://dominio/entrega/dominio/2021/06/02/4b63e50520.jpeg"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+**`400`** — Se os dados enviados estiverem incorretos
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+**`401`** — Se o usuário não possui permissão para acessar a URL informada ou o TOKEN não for informado.
+
+```json
+{
+  "message": "Acesso não autorizado",
+  "status": 0
+}
+```
+
+**`403`** — Se os dados de usuário estão incorretos.
+
+```json
+{
+  "message": "Acesso negado!",
+  "status": 0
+}
+```
+
+**`404`** — Se a URL informada não for encontrada
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`405`** — Se a URL chamada não suporta o método utilizado
+
+```json
+{
+  "message": "Método não permitido!",
+  "status": 0
+}
+```
+
+---
+
+## Consultar ocorrências por autorização de frete
+
+Busca no sistema as ocorrências de minutas conforme os valores da autorização de frete.
+
+**`GET /tracking/ocorrencias/aut_frete`**
+
+### Parâmetros de query
+
+<ParamField query="frete" type="string" required>
+  
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/tracking/ocorrencias/aut_frete?frete=valor" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Evento(s) encontrado(s) com sucesso!
+
+```json
+// Exemplo original do Swagger (contém comentários inline // no próprio texto-fonte)
+{
+  "message": "OK",
+  //Status geral "status": 1,
+  //Status geral "data": [
+    // Dados processados {
+      "status": 1,
+      //Status de processamento do documento "message":"OK",
+      //Msg de processamento do documento "documento":"129009",
+      //Número do documento processado "dados": [
+        //Ocorrencias {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"99",
+          "data":"2019-06-06 14:51:00",
+          "obs":"Coleta Alterada de 0 para 50",
+          "descricao":"OUTROS TIPOS DE OCORRENCIAS NAO ESPECIFICADOS ACIMA",
+          "usuario":"BRD.ANDREALVES"
+        },
+        {
+          "tipo":"Coleta",
+          "numero":"129009",
+          "status":"165",
+          "data":"2019-06-06 09:25:12",
+          "obs":"3872",
+          "descricao":"MANIFESTADO",
+          "usuario":"BRD.ANDREALVES",
+          "cte_numero":"21212-1",
+          "cte_cnpj_emissor":"16691040000171",
+          "cte_aut_data":"2020-07-21",
+          "nf_numero":"154",
+          "razao_remetente":"BRUDAM - LTDA",
+          "cnpj_remetente":"67649269040174",
+          "razao_destinatario":"BRUDAM LOG",
+          "cnpj_destinatario":"88630413004281",
+          "servico":"SUB-CONTRATO",
+          "entrega_nome":"SAVIO",
+          "entrega_rg":"6258566336",
+          "entrega_grau":"PRIMO",
+          "data_entrega":"2020-11-05",
+          "hora_entrega":"11:30",
+          "comprovante": [
+            {
+              "url":"https://dominio/entrega/dominio/2021/06/02/4b63e50520.jpeg"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+**`400`** — Se os dados enviados estiverem incorretos
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+**`401`** — Se o usuário não possui permissão para acessar a URL informada ou o TOKEN não for informado.
+
+```json
+{
+  "message": "Acesso não autorizado",
+  "status": 0
+}
+```
+
+**`403`** — Se os dados de usuário estão incorretos.
+
+```json
+{
+  "message": "Acesso negado!",
+  "status": 0
+}
+```
+
+**`404`** — Se a URL informada não for encontrada
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`405`** — Se a URL chamada não suporta o método utilizado
+
+```json
+{
+  "message": "Método não permitido!",
+  "status": 0
+}
+```
+
+---

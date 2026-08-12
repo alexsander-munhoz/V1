@@ -1,0 +1,831 @@
+---
+title: "API de MDF-e: emitir, atualizar, consultar e cancelar manifestos"
+sidebarTitle: "MDF-e"
+description: "Endpoints para emissão, atualização (incluindo saída efetiva e finalização), consulta e cancelamento de Manifestos Eletrônicos de Documentos Fiscais (MDF-e)."
+---
+
+O manifesto (MDF-e) agrupa coletas, entregas e/ou embarques em um único documento de transporte. Todos os endpoints exigem autenticação via Bearer Token no cabeçalho `Authorization`.
+
+---
+
+## Emitir manifesto (MDF-e)
+
+Gera manifestos no sistema com os dados necessários para emitir um MDFe
+
+**`POST /operacional/emissao/manifesto`**
+
+### Corpo da requisição
+
+<ParamField body="tpMan" type="string" required>
+  1-Transferencia; 2-Agente; 3-Proprio; 4-Terceiro;
+
+  Único valor documentado no Swagger original: `1`.
+</ParamField>
+
+<ParamField body="coletas" type="array of objects">
+  
+
+  <Expandable title="Cada item de coletas">
+    <ParamField body="cAut" type="string">
+      Número da autorização de embarque
+    </ParamField>
+    <ParamField body="nOcc" type="integer">
+      Número da ordem de coleta
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="entregas" type="array of objects">
+  
+
+  <Expandable title="Cada item de entregas">
+    <ParamField body="cAut" type="string">
+      Número da autorização de embarque
+    </ParamField>
+    <ParamField body="chCTe" type="string">
+      Chave do CTe
+    </ParamField>
+    <ParamField body="nDoc" type="string">
+      Número da nota fiscal
+    </ParamField>
+    <ParamField body="chave" type="string">
+      Chave da NFe
+    </ParamField>
+    <ParamField body="CTe" type="string">
+      Número do CTe
+    </ParamField>
+    <ParamField body="idMinuta" type="integer">
+      Número da minuta
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="embarque" type="array of objects">
+  
+
+  <Expandable title="Cada item de embarque">
+    <ParamField body="nAwb" type="string">
+      Número do AWB
+    </ParamField>
+    <ParamField body="chAwb" type="string">
+      Chave do AWB
+    </ParamField>
+    <ParamField body="nDespacho" type="integer">
+      ID do despacho
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="retira" type="array of objects">
+  
+
+  <Expandable title="Cada item de retira">
+    <ParamField body="nAwb" type="string">
+      Número do AWB
+    </ParamField>
+    <ParamField body="chAwb" type="string">
+      Chave do AWB
+    </ParamField>
+    <ParamField body="nDespacho" type="integer">
+      ID do despacho
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="Custos" type="array of objects">
+  
+
+  <Expandable title="Cada item de Custos">
+    <ParamField body="descricao" type="string">
+      Descrição do custo
+    </ParamField>
+    <ParamField body="quant" type="integer">
+      Quantidade
+    </ParamField>
+    <ParamField body="valor" type="string">
+      Valor do custo
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="nDocEmit" type="string">
+  CNPJ da unidade emissora do manifesto
+</ParamField>
+
+<ParamField body="nDocMot" type="string">
+  CPF/CNPJ do motorista
+</ParamField>
+
+<ParamField body="tpMot" type="integer">
+  Informar 1 para Motorista proprio; 2 para Motorista de agente; e 3 para Motorista de terceiros
+
+  Valores aceitos: `1`, `2`, `3`.
+</ParamField>
+
+<ParamField body="placa" type="string" required>
+  Placa do veiculo que realizará o transporte
+</ParamField>
+
+<ParamField body="cRoteiro" type="string">
+  Código de identificação da rota no sistema
+</ParamField>
+
+<ParamField body="nLacres" type="array of objects">
+  
+
+  <Expandable title="Cada item de nLacres">
+    <ParamField body="tpLacre" type="string">
+      Valores aceitos: `direita`, `esquerda`, `traseira`, `outro`.
+    </ParamField>
+    <ParamField body="nLacre" type="string">
+      Número do lacre
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="cInt" type="integer">
+  Código do documento no sistema integrado
+</ParamField>
+
+<ParamField body="transf" type="object">
+  
+
+  <Expandable title="Propriedades de transf">
+    <ParamField body="cAeroIni" type="string">
+      Código ICAO do aeroporto de origem da transferência
+    </ParamField>
+    <ParamField body="cAeroFim" type="string">
+      Código ICAO do aeroporto de destino da transferência
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="chegada" type="object" required>
+  
+
+  <Expandable title="Propriedades de chegada">
+    <ParamField body="dPrev" type="string">
+  
+    </ParamField>
+    <ParamField body="hPrev" type="string">
+  
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="saida" type="object">
+  
+
+  <Expandable title="Propriedades de saida">
+    <ParamField body="dPrev" type="string">
+  
+    </ParamField>
+    <ParamField body="hPrev" type="string">
+  
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/emissao/manifesto" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+  "tpMan": 1,
+  "coletas": [
+    {
+      "cAut": "string",
+      "nOcc": 0
+    }
+  ],
+  "entregas": [
+    {
+      "cAut": "string",
+      "chCTe": "string",
+      "nDoc": "string",
+      "chave": "string"
+    }
+  ],
+  "embarque": [
+    {
+      "nAwb": "string",
+      "chAwb": "string",
+      "nDespacho": 0
+    }
+  ]
+}'
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+```json
+{
+  "message":"OK",
+  "status":1,
+  "data":{
+    "status":1,
+    "message":"Documento atualizado no sistema.",
+    "doc":[
+      {
+        "cAut":"8053180041a",
+        "message":"Vinculado com sucesso.",
+        "status":1
+      },
+      {
+        "cAut":"8053180041b",
+        "message":"Vinculado com sucesso.",
+        "status":1
+      }
+    ],
+    "id":"37"
+  }
+}
+```
+
+**`400`** — Retorno erro preenchimento
+
+```json
+{
+  "message":"Erro nos dados enviados",
+  "status":0,
+  "data":[
+    "O campo 'Placa' deve conter um valor de acordo com a E.R. [a-zA-Z]{3}[0-9][a-zA-Z0-9][0-9]{2}."
+  ]
+}
+```
+
+---
+
+## Atualizar manifesto
+
+Atualiza os dados dos manifestos no sistema
+
+**`POST /operacional/alteracao/manifesto`**
+
+### Corpo da requisição
+
+<ParamField body="idMan" type="integer" required>
+  Número do manifesto do sistema.
+</ParamField>
+
+<ParamField body="tpMan" type="integer" required>
+  1-Transferencia; 2-Agente; 3-Proprio; 4-Terceiro;
+
+  Único valor documentado no Swagger original: `1`.
+</ParamField>
+
+<ParamField body="coletas" type="array of objects">
+  
+
+  <Expandable title="Cada item de coletas">
+    <ParamField body="cAut" type="string">
+      Número da autorização de embarque
+    </ParamField>
+    <ParamField body="nOcc" type="integer">
+      Número da ordem de coleta
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="entregas" type="array of objects">
+  
+
+  <Expandable title="Cada item de entregas">
+    <ParamField body="cAut" type="string">
+      Número da autorização de embarque
+    </ParamField>
+    <ParamField body="chCTe" type="string">
+      Chave do CTe
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="embarque" type="array of objects">
+  
+
+  <Expandable title="Cada item de embarque">
+    <ParamField body="nAwb" type="string">
+      Número do AWB
+    </ParamField>
+    <ParamField body="chAwb" type="string">
+      Chave do AWB
+    </ParamField>
+    <ParamField body="nDespacho" type="integer">
+      ID do despacho
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="retira" type="array of objects">
+  
+
+  <Expandable title="Cada item de retira">
+    <ParamField body="nAwb" type="string">
+      Número do AWB
+    </ParamField>
+    <ParamField body="chAwb" type="string">
+      Chave do AWB
+    </ParamField>
+    <ParamField body="nDespacho" type="integer">
+      ID do despacho
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="cte" type="array of objects">
+  
+
+  <Expandable title="Cada item de cte">
+    <ParamField body="CTe" type="integer">
+      Número do CTe
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="notas" type="array of objects">
+  
+
+  <Expandable title="Cada item de notas">
+    <ParamField body="nDoc" type="integer">
+      Número da nota fiscal
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="nDocEmit" type="string">
+  CNPJ da unidade emissora do manifesto
+</ParamField>
+
+<ParamField body="nDocMot" type="string">
+  CPF/CNPJ do motorista
+</ParamField>
+
+<ParamField body="tpMot" type="integer">
+  Informar 1 para Motorista proprio; 2 para Motorista de agente; e 3 para Motorista de terceiros
+
+  Valores aceitos: `1`, `2`, `3`.
+</ParamField>
+
+<ParamField body="placa" type="string">
+  Placa do veiculo que realizará o transporte
+</ParamField>
+
+<ParamField body="cRoteiro" type="string">
+  Código de identificação da rota no sistema
+</ParamField>
+
+<ParamField body="nLacres" type="array of objects">
+  
+
+  <Expandable title="Cada item de nLacres">
+    <ParamField body="tpLacre" type="string">
+      Valores aceitos: `direita`, `esquerda`, `traseira`, `outro`.
+    </ParamField>
+    <ParamField body="nLacre" type="string">
+      Número do lacre
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="transf" type="object">
+  
+
+  <Expandable title="Propriedades de transf">
+    <ParamField body="cAeroIni" type="string">
+      Código ICAO do aeroporto de origem da transferência
+    </ParamField>
+    <ParamField body="cAeroFim" type="string">
+      Código ICAO do aeroporto de destino da transferência
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="chegada" type="object">
+  
+
+  <Expandable title="Propriedades de chegada">
+    <ParamField body="dPrev" type="string">
+  
+    </ParamField>
+    <ParamField body="hPrev" type="string">
+  
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="saida" type="object">
+  
+
+  <Expandable title="Propriedades de saida">
+    <ParamField body="dPrev" type="string">
+  
+    </ParamField>
+    <ParamField body="hPrev" type="string">
+  
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/alteracao/manifesto" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+  "idMan": 0,
+  "tpMan": 1,
+  "coletas": [
+    {
+      "cAut": "string",
+      "nOcc": 0
+    }
+  ],
+  "entregas": [
+    {
+      "cAut": "string",
+      "chCTe": "string"
+    }
+  ]
+}'
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+```json
+{
+  "message":"OK",
+  "status":1,
+  "data":{
+    "status":1,
+    "message":"Documento atualizado no sistema.",
+    "doc":[
+      {
+        "cAut":"8053180041a",
+        "message":"Vinculado com sucesso.",
+        "status":1
+      },
+      {
+        "cAut":"8053180041b",
+        "message":"Vinculado com sucesso.",
+        "status":1
+      }
+    ],
+    "id":"37"
+  }
+}
+```
+
+**`400`** — Retorno erro preenchimento
+
+```json
+{
+  "message":"Erro nos dados enviados",
+  "status":0,
+  "data":[
+    "O campo 'Placa' deve conter um valor de acordo com a E.R. [a-zA-Z]{3}[0-9][a-zA-Z0-9][0-9]{2}."
+  ]
+}
+```
+
+---
+
+## Registrar saída efetiva do manifesto
+
+Atualiza os dados dos manifestos no sistema e realiza a saida efetiva
+
+**`POST /operacional/alteracao/manifesto/saidaEfetiva`**
+
+### Corpo da requisição
+
+<ParamField body="idMan" type="number" required>
+  ID do manifesto
+</ParamField>
+
+<ParamField body="kmInicial" type="number">
+  KM inicial do Manifesto
+</ParamField>
+
+<ParamField body="dataSaida" type="string">
+  Data de saída do manifesto
+</ParamField>
+
+<ParamField body="dataChegada" type="string">
+  Previsão de chegada do manifesto
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/alteracao/manifesto/saidaEfetiva" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+  "idMan": 0,
+  "kmInicial": 0,
+  "dataSaida": "string",
+  "dataChegada": "string"
+}'
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+```json
+{
+  "message":"OK",
+  "status":1,
+  "data":{
+    "status":1,
+    "message":"Saida efetiva realizada."
+  }
+}
+```
+
+**`400`** — Retorno erro preenchimento
+
+```json
+{
+  "message":"Erro nos dados enviados",
+  "status":0,
+  "data":[
+    "O campo 'idMan' é obrigatório."
+  ]
+}
+```
+
+---
+
+## Finalizar manifesto
+
+Atualiza os dados dos manifestos no sistema e realiza finalização do manifesto
+
+**`POST /operacional/alteracao/manifesto/finalizarManifesto`**
+
+### Corpo da requisição
+
+<ParamField body="idMan" type="number" required>
+  ID do manifesto
+</ParamField>
+
+<ParamField body="kmFinal" type="number">
+  KM final do Manifesto
+</ParamField>
+
+<ParamField body="dataChegada" type="string">
+  Data de chegada do manifesto
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/alteracao/manifesto/finalizarManifesto" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+  "idMan": 0,
+  "kmFinal": 0,
+  "dataChegada": "string"
+}'
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+```json
+{
+  "message":"OK",
+  "status":1,
+  "data":{
+    "status":1,
+    "message":"Manifesto Finalizado."
+  }
+}
+```
+
+**`400`** — Retorno erro preenchimento
+
+```json
+{
+  "message":"Erro nos dados enviados",
+  "status":0,
+  "data":[
+    "O campo 'idMan' é obrigatório."
+  ]
+}
+```
+
+---
+
+## Cancelar manifesto
+
+Cancela um manifesto no sistema com o envio do ID
+
+**`GET /operacional/cancela/manifesto/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string" required>
+  
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/cancela/manifesto/{id}" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+```json
+{
+  "message": "OK",
+  "status": 1,
+  "data": {
+    "message": "O manifesto 18639 foi cancelado com sucesso"
+  }
+}
+```
+
+**`400`** — Retorno erro preenchimento
+
+```json
+{
+  "message":"Erro nos dados enviados",
+  "status":0,
+  "data":[
+    "Ocorreu um erro ao cancelar o manifesto 766999 ou o mesmo já se encontra cancelado"
+  ]
+}
+```
+
+---
+
+## Consultar manifesto
+
+Consulta um manifesto no sistema com o envio do ID
+
+**`GET /operacional/consulta/manifesto/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string" required>
+  
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/consulta/manifesto/{id}" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+**`400`** — Retorno erro preenchimento
+
+```json
+{
+  "message":"Erro nos dados enviados",
+  "status":0,
+  "data":[
+    "Ocorreu um erro ao consultar o manifesto 766999"
+  ]
+}
+```
+
+---
+
+## Listar manifestos
+
+Consulta manifestos no sistema por intervalo de data de emissão e status, com paginação
+
+**`GET /operacional/consulta/manifestos`**
+
+### Parâmetros de query
+
+<ParamField query="dataini" type="string" required>
+  
+</ParamField>
+
+<ParamField query="datafim" type="string" required>
+  
+</ParamField>
+
+<ParamField query="status" type="integer" required>
+  
+</ParamField>
+
+<ParamField query="pagina" type="integer">
+  
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/consulta/manifestos?dataini=valor&datafim=valor&status=valor" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+**`400`** — Parâmetros inválidos
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+**`401`** — Token inválido
+
+```json
+{
+  "message": "Acesso não autorizado",
+  "status": 0
+}
+```
+
+**`403`** — Token sem permissão
+
+```json
+{
+  "message": "Acesso negado!",
+  "status": 0
+}
+```
+
+**`404`** — Nenhum manifesto encontrado
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`500`** — Erro interno
+
+```json
+{
+  "message": "Erro desconhecido",
+  "status": 0
+}
+```
+
+---

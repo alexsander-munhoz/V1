@@ -1,0 +1,67 @@
+---
+title: "Códigos de erro da API"
+sidebarTitle: "Erros"
+description: "Estrutura de resposta e significado de cada código de erro retornado pela API Brudam."
+---
+
+Toda resposta de erro segue o mesmo formato básico: um `message` (resumo), um `status`
+(sempre `0` em erros) e, quando aplicável, um `data` com detalhes adicionais.
+
+## 400 — Dados enviados incorretos
+
+Retornado quando o corpo ou os parâmetros enviados não passam na validação (campo
+obrigatório ausente, formato inválido, tamanho incorreto etc.). O array `data` traz uma
+mensagem por campo com problema.
+
+```json
+{
+  "message": "Erro nos dados enviados",
+  "status": 0,
+  "data": [
+    "O campo Senha deve conter um valor de acordo com a E.R. ^[0-9A-Fa-f]{64}.",
+    "O campo Senha deve ter exatamente 64 caracteres"
+  ]
+}
+```
+
+## 401 — Não autorizado
+
+Retornado quando o token não foi informado ou é inválido/expirado.
+
+```json
+{ "message": "Acesso não autorizado", "status": 0 }
+```
+
+## 403 — Acesso negado
+
+Retornado quando as credenciais (usuário/senha) estão incorretas.
+
+```json
+{ "message": "Acesso negado!", "status": 0 }
+```
+
+## 404 — Não encontrado
+
+Retornado quando a URL chamada não existe.
+
+```json
+{ "message": "Nenhum resultado encontrado!", "status": 0 }
+```
+
+## 405 — Método não permitido
+
+Retornado quando a URL existe, mas não aceita o método HTTP utilizado (por exemplo,
+chamar com `GET` um endpoint que só aceita `POST`).
+
+```json
+{ "message": "Método não permitido!", "status": 0 }
+```
+
+## 500 — Erro desconhecido
+
+Erro inesperado do servidor. Se você receber esse código de forma recorrente, entre em
+contato com o suporte informando o horário da chamada e o endpoint utilizado.
+
+```json
+{ "message": "Erro desconhecido", "status": 0 }
+```

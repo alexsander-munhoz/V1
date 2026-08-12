@@ -1,0 +1,38 @@
+---
+title: "Introdução à API"
+sidebarTitle: "Introdução"
+description: "Visão geral dos grupos de endpoints disponíveis na API Brudam."
+---
+
+A API Brudam usa autenticação Bearer (JWT) e retorna respostas em JSON. Veja a página
+[Autenticação](/api-reference/autenticacao) para obter seu token.
+
+## O que está documentado nesta referência
+
+<CardGroup cols={2}>
+  <Card title="CT-e" href="/api-reference/cte">
+    Consultar CT-es emitidos e cancelar CT-e.
+  </Card>
+  <Card title="Entregas (minutas)" href="/api-reference/entregas">
+    Emitir CT-e/minuta, consultar, cancelar e atualizar.
+  </Card>
+  <Card title="MDF-e" href="/api-reference/mdfe">
+    Emitir, atualizar, consultar e cancelar manifestos.
+  </Card>
+  <Card title="Coletas" href="/api-reference/coletas">
+    Emitir, atualizar, listar, consultar e cancelar coletas.
+  </Card>
+  <Card title="Rastreamento" href="/api-reference/rastreamento">
+    Registrar e consultar ocorrências de entrega.
+  </Card>
+  <Card title="Financeiro" href="/api-reference/financeiro">
+    Faturas e liquidação de lançamentos.
+  </Card>
+</CardGroup>
+
+<Note>
+O Swagger original também documenta outros grupos que ainda não têm página nesta
+referência: **Login**, **Embarque Aéreo**, **Cotações**, **Frete**, **Custos**,
+**Empresas**, **Prazos**, **Abastecimento** e **Trechos**. Se sua integração usa algum
+desses, peça para incluirmos a página correspondente.
+</Note>

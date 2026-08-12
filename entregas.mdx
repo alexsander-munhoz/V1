@@ -1,0 +1,1493 @@
+---
+title: "API de Entregas: emitir e gerenciar minutas"
+sidebarTitle: "Entregas"
+description: "Endpoints para emitir CT-e ou minuta a partir de dados de entrega, consultar, cancelar e atualizar minutas (incluindo controle de temperatura para cargas perecíveis)."
+---
+
+No Brudam TMS, a **minuta** é o documento operacional que representa uma ordem de entrega antes ou durante a emissão do CT-e. Todos os endpoints exigem autenticação via Bearer Token no cabeçalho `Authorization`.
+
+---
+
+## Emitir CT-e
+
+Gera minuta no sistema com os dados necessários para emitir um CTe
+
+**`POST /operacional/emissao/cte`**
+
+### Corpo da requisição
+
+<ParamField body="documentos" type="array of objects">
+  
+
+  <Expandable title="Cada item de documentos">
+    <ParamField body="minuta" type="object">
+  
+
+      <Expandable title="Propriedades de minuta">
+        <ParamField body="CFOP" type="integer" required>
+          CFOP do CTe.
+
+          Valores aceitos: `1206`, `2206`, `3206`, `5206`, `5351`, `5352`, `5353`, `5354`, `5355`, `5356`, `5357`, `5359`, `5360`, `5601`, `5602`, `5603`, `5605`, `5606`, `5932`, `5949`, `6206`, `6351`, `6352`, `6353`, `6354`, `6355`, `6356`, `6357`, `6359`, `6360`, `6603`, `6932`, `6949`, `7206`, `7358`, `7949`.
+        </ParamField>
+        <ParamField body="tpCTe" type="integer" required>
+          Tipo de CTe.
+
+          Valores aceitos: `0`, `1`, `2`, `3`.
+        </ParamField>
+        <ParamField body="toma" type="integer" required>
+          Indicador de papel do tomador. 0-Remetente; 1-Expedidor; 2-Recebedor; 3-Destinatário, 4-Outro/Tomador.
+
+          Valores aceitos: `0`, `1`, `2`, `3`, `4`.
+        </ParamField>
+        <ParamField body="nDocEmit" type="string" required>
+          CNPJ da transportadora emissora.
+        </ParamField>
+        <ParamField body="dEmi" type="integer" required>
+          Data de emissão. Formato AAAA-MM-DD.
+        </ParamField>
+        <ParamField body="rSeg" type="integer">
+          Responsável pelo seguro. 0-remetente; 1-expedidor; 2-recebedor; 3-destinatario; 4-transportadora; 5-outro/tomador;
+
+          Valores aceitos: `0`, `1`, `2`, `3`, `4`, `5`, `9`.
+        </ParamField>
+        <ParamField body="cSeg" type="string">
+          CNPJ da seguradora.
+        </ParamField>
+        <ParamField body="nAver" type="string">
+          Número de averbação.
+        </ParamField>
+        <ParamField body="cServ" type="string" required>
+          Código de identificação do serviço no sistema.
+        </ParamField>
+        <ParamField body="cTab" type="string" required>
+          Código da tabela de frete.
+        </ParamField>
+        <ParamField body="tpEmi" type="integer">
+          Tipo de emissão da minuta 1-entrega; 2-devolução; 3-reentrega;
+
+          Valores aceitos: `1`, `2`, `3`.
+        </ParamField>
+        <ParamField body="nOcc" type="integer">
+          Número da ordem de coleta.
+        </ParamField>
+        <ParamField body="cAut" type="string" required>
+          Código de autorização.
+        </ParamField>
+        <ParamField body="chCTe" type="string">
+          Chave Cte complementar
+        </ParamField>
+        <ParamField body="transf" type="object">
+  
+
+          <Expandable title="Propriedades de transf">
+            <ParamField body="cAeroIni" type="string" required>
+              Código ICAO do aeroporto de origem.
+            </ParamField>
+            <ParamField body="cAeroFim" type="string" required>
+              Código ICAO do aeroporto de destino.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="carga" type="object">
+  
+
+          <Expandable title="Propriedades de carga">
+            <ParamField body="pBru" type="number" required>
+              Peso bruto total.
+            </ParamField>
+            <ParamField body="pCub" type="number" required>
+              Peso cubado total.
+            </ParamField>
+            <ParamField body="qVol" type="integer" required>
+              Quantidade total de volumes.
+            </ParamField>
+            <ParamField body="vTot" type="number" required>
+              Valor total da mercadoria.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="volumes" type="array of objects">
+  
+
+          <Expandable title="Cada item de volumes">
+            <ParamField body="dCom" type="number">
+              Comprimento do volume.
+            </ParamField>
+            <ParamField body="dLar" type="number">
+              Largura do volume.
+            </ParamField>
+            <ParamField body="dAlt" type="number">
+              Altura do volume.
+            </ParamField>
+            <ParamField body="qVol" type="number">
+              Quantidade de volumes com as dimensões acima.
+            </ParamField>
+            <ParamField body="pBru" type="number">
+              Peso bruto dos volumes.
+            </ParamField>
+            <ParamField body="pCub" type="number">
+              Peso cubado dos volumes.
+            </ParamField>
+            <ParamField body="cEtiq" type="string">
+              Código da etiqueta.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="cStatus" type="integer">
+          Status da minuta. 1-emissão; 12-pre emissão;
+
+          Valores aceitos: `1`, `12`.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="compl" type="object">
+  
+
+      <Expandable title="Propriedades de compl">
+        <ParamField body="entrega" type="object">
+  
+
+          <Expandable title="Propriedades de entrega">
+            <ParamField body="dPrev" type="string" required>
+              Data de previsão. Formato AAAA-MM-DD.
+            </ParamField>
+            <ParamField body="hPrev" type="string" required>
+              Hora de previsão. Formato HH:MM:SS.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="perecivel" type="object">
+  
+
+          <Expandable title="Propriedades de perecivel">
+            <ParamField body="dPrev" type="string">
+              Data de previsão. Formato AAAA-MM-DD.
+            </ParamField>
+            <ParamField body="hPrev" type="string">
+              Hora de previsão. Formato HH:MM:SS.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="agendamento" type="object">
+  
+
+          <Expandable title="Propriedades de agendamento">
+            <ParamField body="data" type="string" required>
+              Data de agendamento. Formato AAAA-MM-DD.
+            </ParamField>
+            <ParamField body="hIni" type="string" required>
+              Hora inicial. Formato HH:MM:SS.
+            </ParamField>
+            <ParamField body="hFim" type="string" required>
+              Hora final. Formato HH:MM:SS.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="respEntrega" type="object">
+  
+
+          <Expandable title="Propriedades de respEntrega">
+            <ParamField body="tpResp" type="integer" required>
+              Tipo de responsável pela entrega 1-Motorista Próprio; 2-Agente; 3-Terceiro; 4-Cia de Transf.; 5-Retira Base; 6-Base;
+
+              Valores aceitos: `1`, `2`, `3`, `4`, `5`, `6`.
+            </ParamField>
+            <ParamField body="nDoc" type="string" required>
+              CPF/CNPJ do responsável pela entrega.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="cOrigCalc" type="integer" required>
+          Código IBGE da cidade de referencia de origem para calculo de frete.
+        </ParamField>
+        <ParamField body="cDestCalc" type="integer" required>
+          Código IBGE da cidade de referencia de destino para calculo de frete.
+        </ParamField>
+        <ParamField body="xObs" type="string">
+          Observações.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="toma" type="object">
+  
+
+      <Expandable title="Propriedades de toma">
+        <ParamField body="nDoc" type="string" required>
+          CPF/CNPJ do Tomador.
+        </ParamField>
+        <ParamField body="IE" type="string" required>
+          Inscrição estadual.
+        </ParamField>
+        <ParamField body="xNome" type="string" required>
+          Razão social.
+        </ParamField>
+        <ParamField body="xFant" type="string" required>
+          Nome fantasia.
+        </ParamField>
+        <ParamField body="nFone" type="string">
+          Telefone.
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+          Inscrição suframa.
+        </ParamField>
+        <ParamField body="xLgr" type="string" required>
+          Endereço do Tomador.
+        </ParamField>
+        <ParamField body="nro" type="string" required>
+          Número do endereço.
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+          Complemento do endereço.
+        </ParamField>
+        <ParamField body="xBairro" type="string" required>
+          Bairro.
+        </ParamField>
+        <ParamField body="cMun" type="integer" required>
+          Município.
+        </ParamField>
+        <ParamField body="CEP" type="integer">
+          CEP.
+        </ParamField>
+        <ParamField body="cPais" type="integer" required>
+          País.
+        </ParamField>
+        <ParamField body="email" type="string">
+          E-mail do Tomador.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="rem" type="object">
+  
+
+      <Expandable title="Propriedades de rem">
+        <ParamField body="nDoc" type="string" required>
+          CPF/CNPJ do Remetente.
+        </ParamField>
+        <ParamField body="IE" type="string" required>
+          Inscrição estadual.
+        </ParamField>
+        <ParamField body="xNome" type="string" required>
+          Razão social.
+        </ParamField>
+        <ParamField body="xFant" type="string" required>
+          Nome fantasia.
+        </ParamField>
+        <ParamField body="nFone" type="string">
+          Telefone.
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+          Inscrição suframa.
+        </ParamField>
+        <ParamField body="xLgr" type="string" required>
+          Endereço do Remetente.
+        </ParamField>
+        <ParamField body="nro" type="string" required>
+          Número do endereço.
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+          Complemento do endereço.
+        </ParamField>
+        <ParamField body="xBairro" type="string" required>
+          Bairro.
+        </ParamField>
+        <ParamField body="cMun" type="integer" required>
+          Município.
+        </ParamField>
+        <ParamField body="CEP" type="integer">
+          CEP.
+        </ParamField>
+        <ParamField body="cPais" type="integer" required>
+          País.
+        </ParamField>
+        <ParamField body="email" type="string">
+          E-mail do Remetente.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="exped" type="object">
+  
+
+      <Expandable title="Propriedades de exped">
+        <ParamField body="nDoc" type="string" required>
+          CPF/CNPJ do Expedidor.
+        </ParamField>
+        <ParamField body="IE" type="string" required>
+          Inscrição estadual.
+        </ParamField>
+        <ParamField body="xNome" type="string" required>
+          Razão social.
+        </ParamField>
+        <ParamField body="xFant" type="string" required>
+          Nome fantasia.
+        </ParamField>
+        <ParamField body="nFone" type="string">
+          Telefone.
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+          Inscrição suframa.
+        </ParamField>
+        <ParamField body="xLgr" type="string" required>
+          Endereço do Expedidor.
+        </ParamField>
+        <ParamField body="nro" type="string" required>
+          Número do endereço.
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+          Complemento do endereço.
+        </ParamField>
+        <ParamField body="xBairro" type="string" required>
+          Bairro.
+        </ParamField>
+        <ParamField body="cMun" type="integer" required>
+          Município.
+        </ParamField>
+        <ParamField body="CEP" type="integer">
+          CEP.
+        </ParamField>
+        <ParamField body="cPais" type="integer" required>
+          País.
+        </ParamField>
+        <ParamField body="email" type="string">
+          E-mail do Expedidor.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="receb" type="object">
+  
+
+      <Expandable title="Propriedades de receb">
+        <ParamField body="nDoc" type="string" required>
+          CPF/CNPJ do Recebedor.
+        </ParamField>
+        <ParamField body="IE" type="string" required>
+          Inscrição estadual.
+        </ParamField>
+        <ParamField body="xNome" type="string" required>
+          Razão social.
+        </ParamField>
+        <ParamField body="xFant" type="string" required>
+          Nome fantasia.
+        </ParamField>
+        <ParamField body="nFone" type="string">
+          Telefone.
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+          Inscrição suframa.
+        </ParamField>
+        <ParamField body="xLgr" type="string" required>
+          Endereço do Recebedor.
+        </ParamField>
+        <ParamField body="nro" type="string" required>
+          Número do endereço.
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+          Complemento do endereço.
+        </ParamField>
+        <ParamField body="xBairro" type="string" required>
+          Bairro.
+        </ParamField>
+        <ParamField body="cMun" type="integer" required>
+          Município.
+        </ParamField>
+        <ParamField body="CEP" type="integer">
+          CEP.
+        </ParamField>
+        <ParamField body="cPais" type="integer" required>
+          País.
+        </ParamField>
+        <ParamField body="email" type="string">
+          E-mail do Recebedor.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="dest" type="object">
+  
+
+      <Expandable title="Propriedades de dest">
+        <ParamField body="nDoc" type="string" required>
+          CPF/CNPJ do Destinatário.
+        </ParamField>
+        <ParamField body="IE" type="string" required>
+          Inscrição estadual.
+        </ParamField>
+        <ParamField body="xNome" type="string" required>
+          Razão social.
+        </ParamField>
+        <ParamField body="xFant" type="string" required>
+          Nome fantasia.
+        </ParamField>
+        <ParamField body="nFone" type="string">
+          Telefone.
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+          Inscrição suframa.
+        </ParamField>
+        <ParamField body="xLgr" type="string" required>
+          Endereço do Destinatário.
+        </ParamField>
+        <ParamField body="nro" type="string" required>
+          Número do endereço.
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+          Complemento do endereço.
+        </ParamField>
+        <ParamField body="xBairro" type="string" required>
+          Bairro.
+        </ParamField>
+        <ParamField body="cMun" type="integer" required>
+          Município.
+        </ParamField>
+        <ParamField body="CEP" type="integer">
+          CEP.
+        </ParamField>
+        <ParamField body="cPais" type="integer" required>
+          País.
+        </ParamField>
+        <ParamField body="email" type="string">
+          E-mail do Destinatário.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="valores" type="object">
+  
+
+      <Expandable title="Propriedades de valores">
+        <ParamField body="vFrete" type="number" required>
+          Valor do frete total.
+        </ParamField>
+        <ParamField body="comp" type="object">
+  
+
+          <Expandable title="Propriedades de comp">
+            <ParamField body="xItem" type="string" required>
+              Item da composição do frete.
+
+              Valores aceitos: `coleta`, `entrega`, `nf`, `peso`, `pedagio`, `tad`, `adv`, `outros`, `gris`, `adic_peso`, `redespacho`, `despacho`, `tas`, `trt`, `tde`, `set_cat`.
+            </ParamField>
+            <ParamField body="vItem" type="number" required>
+              Valor do item.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="imp" type="object">
+  
+
+          <Expandable title="Propriedades de imp">
+            <ParamField body="ICMS" type="object">
+  
+
+              <Expandable title="Propriedades de ICMS">
+                <ParamField body="CST" type="string" required>
+                  Código da situação tributária.
+
+                  Valores aceitos: `00`, `20`, `40`, `41`, `51`, `60`, `90`, `SN`.
+                </ParamField>
+                <ParamField body="vBC" type="number" required>
+                  Valor da base de cálculo.
+                </ParamField>
+                <ParamField body="pRedBC" type="number" required>
+                  Percentual de redução da base de cálculo.
+                </ParamField>
+                <ParamField body="pICMS" type="number" required>
+                  Percentual do ICMS.
+                </ParamField>
+                <ParamField body="vICMS" type="number" required>
+                  Valor do ICMS.
+                </ParamField>
+              </Expandable>
+            </ParamField>
+          </Expandable>
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="documentos" type="array of objects">
+  
+
+      <Expandable title="Cada item de documentos">
+        <ParamField body="nPed" type="string">
+          Número do pedido.
+        </ParamField>
+        <ParamField body="serie" type="string" required>
+          Serie da nota.
+        </ParamField>
+        <ParamField body="nDoc" type="string" required>
+          Número da nota.
+        </ParamField>
+        <ParamField body="dEmi" type="string" required>
+          Data de emissão da nota.
+        </ParamField>
+        <ParamField body="vBC" type="number">
+          Valor da base de cálculo do ICMS.
+        </ParamField>
+        <ParamField body="vICMS" type="number">
+          Valor do ICMS.
+        </ParamField>
+        <ParamField body="vBCST" type="number">
+          Valor de base de cálculo do ICMS ST.
+        </ParamField>
+        <ParamField body="vST" type="number">
+          Valor do ICMS ST.
+        </ParamField>
+        <ParamField body="vProd" type="number" required>
+          Valor dos produtos.
+        </ParamField>
+        <ParamField body="vNF" type="number" required>
+          Valor da NF.
+        </ParamField>
+        <ParamField body="nCFOP" type="integer">
+          CFOP.
+        </ParamField>
+        <ParamField body="pBru" type="number">
+          Peso bruto.
+        </ParamField>
+        <ParamField body="qVol" type="integer" required>
+          Quantidade de volumes.
+        </ParamField>
+        <ParamField body="PIN" type="integer">
+          PIN SUFRAMA.
+        </ParamField>
+        <ParamField body="chave" type="string">
+          Chave da NFe.
+        </ParamField>
+        <ParamField body="tpDoc" type="string" required>
+          Tipo de Documento 00-Declaração; 01-NF Modelo 01/1A e Avulsa; 55-NFe,obrigatória chave.
+
+          Valores aceitos: `00`, `01`, `1A`, `55`.
+        </ParamField>
+        <ParamField body="xEsp" type="string" required>
+          Espécie de mercadoria.
+        </ParamField>
+        <ParamField body="xNat" type="string" required>
+          Natureza da mercadoria.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="docAnt" type="array of objects">
+  
+
+      <Expandable title="Cada item de docAnt">
+        <ParamField body="chCTe" type="string" required>
+          Chave do CTe anterior.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="cteComp" type="object">
+  
+
+      <Expandable title="Propriedades de cteComp">
+        <ParamField body="chCTe" type="string">
+          Chave Cte complementar
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/emissao/cte" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+  "documentos": [
+    {
+      "minuta": {
+        "CFOP": 1206,
+        "tpCTe": 0,
+        "toma": 0,
+        "nDocEmit": "string"
+      },
+      "compl": {
+        "entrega": {
+          "dPrev": "string",
+          "hPrev": "string"
+        },
+        "perecivel": {
+          "dPrev": "string",
+          "hPrev": "string"
+        },
+        "agendamento": {
+          "data": "string",
+          "hIni": "string",
+          "hFim": "string"
+        },
+        "respEntrega": {
+          "tpResp": 1,
+          "nDoc": "string"
+        }
+      },
+      "toma": {
+        "nDoc": "string",
+        "IE": "string",
+        "xNome": "string",
+        "xFant": "string"
+      },
+      "rem": {
+        "nDoc": "string",
+        "IE": "string",
+        "xNome": "string",
+        "xFant": "string"
+      }
+    }
+  ]
+}'
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+```json
+{
+  "message":"OK",
+  "status":1,
+  "data":[
+    {
+      "cAut":807060,
+      "status":1,
+      "message":"Documento gerado no sistema",
+      "id": "5165"
+    },
+    {
+      "cAut":807060,
+      "status":1,
+      "message":"Documento gerado no sistema",
+      "id":"5165"
+    }
+  ]
+}
+```
+
+**`400`** — Retorno erro preenchimento
+
+```json
+{
+  "message":"Erro nos dados enviados",
+  "status":0,
+  "data":[
+    "O campo 'Documentos->[0]->Minuta->Toma' deve conter um dos seguintes valores: 0,1,2,3,4"
+  ]
+}
+```
+
+---
+
+## Emitir minuta (dados mínimos)
+
+Gera minuta no sistema com os dados mínimos necessários
+
+**`POST /operacional/emissao/minuta`**
+
+### Corpo da requisição
+
+<ParamField body="documentos" type="array of objects">
+  
+
+  <Expandable title="Cada item de documentos">
+    <ParamField body="minuta" type="object">
+  
+
+      <Expandable title="Propriedades de minuta">
+        <ParamField body="toma" type="integer" required>
+          Indicador de papel do tomador. 0-Remetente; 1-Expedidor; 2-Recebedor; 3-Destinatário, 4-Outro/Tomador.
+
+          Valores aceitos: `0`, `1`, `2`, `3`, `4`.
+        </ParamField>
+        <ParamField body="nDocEmit" type="string" required>
+          CNPJ da transportadora emissora da minuta.
+        </ParamField>
+        <ParamField body="dEmi" type="integer" required>
+          Data de emissão. Formato AAAA-MM-DD.
+        </ParamField>
+        <ParamField body="rSeg" type="integer" required>
+          Responsável pelo seguro. 0-remetente; 1-expedidor; 2-recebedor; 3-destinatario; 4-transportadora; 5-outro/tomador;
+
+          Valores aceitos: `0`, `1`, `2`, `3`, `4`, `5`, `9`.
+        </ParamField>
+        <ParamField body="cSeg" type="string" required>
+          CNPJ da seguradora.
+        </ParamField>
+        <ParamField body="cServ" type="string">
+          Código de identificação do serviço no sistema.
+        </ParamField>
+        <ParamField body="cTab" type="string">
+          Código da tabela de frete.
+        </ParamField>
+        <ParamField body="tpEmi" type="integer" required>
+          Tipo de emissão da minuta 1-entrega; 2-devolução; 3-reentrega;
+
+          Valores aceitos: `1`, `2`, `3`.
+        </ParamField>
+        <ParamField body="nOcc" type="integer">
+          Número da ordem de coleta.
+        </ParamField>
+        <ParamField body="cAut" type="string">
+          Código de autorização.
+        </ParamField>
+        <ParamField body="transf" type="object">
+  
+
+          <Expandable title="Propriedades de transf">
+            <ParamField body="cAeroIni" type="string" required>
+              Código ICAO do aeroporto de origem.
+            </ParamField>
+            <ParamField body="cAeroFim" type="string" required>
+              Código ICAO do aeroporto de destino.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="carga" type="object" required>
+  
+
+          <Expandable title="Propriedades de carga">
+            <ParamField body="pBru" type="number" required>
+              Peso bruto total.
+            </ParamField>
+            <ParamField body="pCub" type="number" required>
+              Peso cubado total.
+            </ParamField>
+            <ParamField body="qVol" type="integer" required>
+              Quantidade total de volumes.
+            </ParamField>
+            <ParamField body="vTot" type="number" required>
+              Valor total da mercadoria.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="volumes" type="array of objects">
+  
+
+          <Expandable title="Cada item de volumes">
+            <ParamField body="dCom" type="number">
+              Comprimento do volume.
+            </ParamField>
+            <ParamField body="dLar" type="number">
+              Largura do volume.
+            </ParamField>
+            <ParamField body="dAlt" type="number">
+              Altura do volume.
+            </ParamField>
+            <ParamField body="qVol" type="number">
+              Quantidade de volumes com as dimensões acima.
+            </ParamField>
+            <ParamField body="pBru" type="number">
+              Peso bruto dos volumes.
+            </ParamField>
+            <ParamField body="pCub" type="number">
+              Peso cubado dos volumes.
+            </ParamField>
+            <ParamField body="cEtiq" type="string">
+              Código da etiqueta.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="xReferencia" type="string">
+          Campo de referência da minuta.
+        </ParamField>
+        <ParamField body="xOrdemServico" type="string">
+          Campo ordem de serviço da minuta.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="compl" type="object">
+  
+
+      <Expandable title="Propriedades de compl">
+        <ParamField body="entrega" type="object">
+          Grupo de dados da entrega do CTe.
+
+          <Expandable title="Propriedades de entrega">
+            <ParamField body="dPrev" type="string" required>
+              Data de previsão. Formato AAAA-MM-DD.
+            </ParamField>
+            <ParamField body="hPrev" type="string" required>
+              Hora de previsão. Formato HH:MM:SS.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="respEntrega" type="object">
+          Responsável pela entrega.
+
+          <Expandable title="Propriedades de respEntrega">
+            <ParamField body="tpResp" type="integer" required>
+              Tipo de responsável pela entrega 1-Motorista Próprio; 2-Agente; 3-Terceiro; 4-Cia de Transf.; 5-Retira Base; 6-Base;
+
+              Valores aceitos: `1`, `2`, `3`, `4`, `5`, `6`.
+            </ParamField>
+            <ParamField body="nDoc" type="string" required>
+              CPF/CNPJ do responsável pela entrega.
+            </ParamField>
+            <ParamField body="cServ" type="string">
+  
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="cOrigCalc" type="integer" required>
+          Código IBGE da cidade de referencia de origem para calculo de frete.
+        </ParamField>
+        <ParamField body="cDestCalc" type="integer" required>
+          Código IBGE da cidade de referencia de destino para calculo de frete.
+        </ParamField>
+        <ParamField body="xObs" type="string">
+          Observações.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="toma" type="object">
+  
+
+      <Expandable title="Propriedades de toma">
+        <ParamField body="nDoc" type="string" required>
+          CPF/CNPJ do Tomador.
+        </ParamField>
+        <ParamField body="IE" type="string" required>
+          Inscrição Estadual.
+        </ParamField>
+        <ParamField body="cFiscal" type="integer" required>
+          Classificação Fiscal: 
+         1 = 351-EMPRESA DE TRANSPORTE 
+         2 = 352-ESTABELECIMENTO INDUSTRIAL 
+         3 = 353-ESTABELECIMENTO COMERCIAL 
+         4 = 354-ESTABELECIMENTO PRESTADOR DE SERVICO 
+         5 = 355-GERADORA OU DISTRIB. DE ENERGIA ELETRICA 
+         6 = 356-PRODUTOR RURAL 
+         7 = 357-NAO CONTRIBUINTE 
+         8 = 360-PREST SERV DE TRANSPORTE A CONTRIBUINTE SUBST 
+         9 = 359-PREST SERV A NAO CONTRIBUINTE ISENTO OBRIGATO 
+         10 = 932-SERVIÇO DE TRANSPORTE FORA DA SEDE DA TRANSPO 
+         11 = 206-ANULACAO DE VALOR RELATIVO À PRESTAÇÃO DE SER
+
+          Valores aceitos: `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`.
+        </ParamField>
+        <ParamField body="xNome" type="string" required>
+          Razão social.
+        </ParamField>
+        <ParamField body="xFant" type="string" required>
+          Nome fantasia.
+        </ParamField>
+        <ParamField body="nFone" type="string" required>
+          Telefone.
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+          Inscrição suframa.
+        </ParamField>
+        <ParamField body="xLgr" type="string" required>
+          Endereço do Tomador.
+        </ParamField>
+        <ParamField body="nro" type="string" required>
+          Número do endereço.
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+          Complemento do endereço.
+        </ParamField>
+        <ParamField body="xBairro" type="string" required>
+          Bairro.
+        </ParamField>
+        <ParamField body="cMun" type="integer" required>
+          Município.
+        </ParamField>
+        <ParamField body="CEP" type="integer" required>
+          CEP.
+        </ParamField>
+        <ParamField body="cPais" type="integer" required>
+          País.
+        </ParamField>
+        <ParamField body="email" type="string" required>
+          E-mail do Tomador.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="rem" type="object">
+  
+
+      <Expandable title="Propriedades de rem">
+        <ParamField body="nDoc" type="string" required>
+          CPF/CNPJ do Remetente.
+        </ParamField>
+        <ParamField body="IE" type="string" required>
+          Inscrição estadual.
+        </ParamField>
+        <ParamField body="cFiscal" type="integer" required>
+          Classificação Fiscal: 
+         1 = 351-EMPRESA DE TRANSPORTE 
+         2 = 352-ESTABELECIMENTO INDUSTRIAL 
+         3 = 353-ESTABELECIMENTO COMERCIAL 
+         4 = 354-ESTABELECIMENTO PRESTADOR DE SERVICO 
+         5 = 355-GERADORA OU DISTRIB. DE ENERGIA ELETRICA 
+         6 = 356-PRODUTOR RURAL 
+         7 = 357-NAO CONTRIBUINTE 
+         8 = 360-PREST SERV DE TRANSPORTE A CONTRIBUINTE SUBST 
+         9 = 359-PREST SERV A NAO CONTRIBUINTE ISENTO OBRIGATO 
+         10 = 932-SERVIÇO DE TRANSPORTE FORA DA SEDE DA TRANSPO 
+         11 = 206-ANULACAO DE VALOR RELATIVO À PRESTAÇÃO DE SER
+
+          Valores aceitos: `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`.
+        </ParamField>
+        <ParamField body="xNome" type="string" required>
+          Razão social.
+        </ParamField>
+        <ParamField body="xFant" type="string" required>
+          Nome fantasia.
+        </ParamField>
+        <ParamField body="nFone" type="string" required>
+          Telefone.
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+          Inscrição suframa.
+        </ParamField>
+        <ParamField body="xLgr" type="string" required>
+          Endereço do Remetente.
+        </ParamField>
+        <ParamField body="nro" type="string" required>
+          Número do endereço.
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+          Complemento do endereço.
+        </ParamField>
+        <ParamField body="xBairro" type="string" required>
+          Bairro.
+        </ParamField>
+        <ParamField body="cMun" type="integer" required>
+          Município.
+        </ParamField>
+        <ParamField body="CEP" type="integer" required>
+          CEP.
+        </ParamField>
+        <ParamField body="cPais" type="integer" required>
+          País.
+        </ParamField>
+        <ParamField body="email" type="string" required>
+          E-mail do Remetente.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="exped" type="object">
+  
+
+      <Expandable title="Propriedades de exped">
+        <ParamField body="nDoc" type="string" required>
+          CPF/CNPJ do Expedidor
+        </ParamField>
+        <ParamField body="IE" type="string" required>
+          Inscrição estadual.
+        </ParamField>
+        <ParamField body="cFiscal" type="integer" required>
+          Classificação Fiscal: 
+         1 = 351-EMPRESA DE TRANSPORTE 
+         2 = 352-ESTABELECIMENTO INDUSTRIAL 
+         3 = 353-ESTABELECIMENTO COMERCIAL 
+         4 = 354-ESTABELECIMENTO PRESTADOR DE SERVICO 
+         5 = 355-GERADORA OU DISTRIB. DE ENERGIA ELETRICA 
+         6 = 356-PRODUTOR RURAL 
+         7 = 357-NAO CONTRIBUINTE 
+         8 = 360-PREST SERV DE TRANSPORTE A CONTRIBUINTE SUBST 
+         9 = 359-PREST SERV A NAO CONTRIBUINTE ISENTO OBRIGATO 
+         10 = 932-SERVIÇO DE TRANSPORTE FORA DA SEDE DA TRANSPO 
+         11 = 206-ANULACAO DE VALOR RELATIVO À PRESTAÇÃO DE SER
+
+          Valores aceitos: `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`.
+        </ParamField>
+        <ParamField body="xNome" type="string" required>
+          Razão social.
+        </ParamField>
+        <ParamField body="xFant" type="string" required>
+          Nome fantasia.
+        </ParamField>
+        <ParamField body="nFone" type="string">
+          Telefone.
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+          Inscrição suframa.
+        </ParamField>
+        <ParamField body="xLgr" type="string" required>
+          Endereço do Expedidor.
+        </ParamField>
+        <ParamField body="nro" type="string" required>
+          Número do endereço.
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+          Complemento do endereço.
+        </ParamField>
+        <ParamField body="xBairro" type="string" required>
+          Bairro.
+        </ParamField>
+        <ParamField body="cMun" type="integer" required>
+          Município.
+        </ParamField>
+        <ParamField body="CEP" type="integer">
+          CEP.
+        </ParamField>
+        <ParamField body="cPais" type="integer" required>
+          País.
+        </ParamField>
+        <ParamField body="email" type="string">
+          E-mail do Expedidor.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="receb" type="object">
+  
+
+      <Expandable title="Propriedades de receb">
+        <ParamField body="nDoc" type="string" required>
+          CPF/CNPJ do Recebedor.
+        </ParamField>
+        <ParamField body="IE" type="string" required>
+          Inscrição estadual.
+        </ParamField>
+        <ParamField body="cFiscal" type="integer" required>
+          Classificação Fiscal: 
+         1 = 351-EMPRESA DE TRANSPORTE 
+         2 = 352-ESTABELECIMENTO INDUSTRIAL 
+         3 = 353-ESTABELECIMENTO COMERCIAL 
+         4 = 354-ESTABELECIMENTO PRESTADOR DE SERVICO 
+         5 = 355-GERADORA OU DISTRIB. DE ENERGIA ELETRICA 
+         6 = 356-PRODUTOR RURAL 
+         7 = 357-NAO CONTRIBUINTE 
+         8 = 360-PREST SERV DE TRANSPORTE A CONTRIBUINTE SUBST 
+         9 = 359-PREST SERV A NAO CONTRIBUINTE ISENTO OBRIGATO 
+         10 = 932-SERVIÇO DE TRANSPORTE FORA DA SEDE DA TRANSPO 
+         11 = 206-ANULACAO DE VALOR RELATIVO À PRESTAÇÃO DE SER
+
+          Valores aceitos: `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`.
+        </ParamField>
+        <ParamField body="xNome" type="string" required>
+          Razão social.
+        </ParamField>
+        <ParamField body="xFant" type="string" required>
+          Nome fantasia.
+        </ParamField>
+        <ParamField body="nFone" type="string">
+          Telefone.
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+          Inscrição suframa.
+        </ParamField>
+        <ParamField body="xLgr" type="string" required>
+          Endereço do Recebedor.
+        </ParamField>
+        <ParamField body="nro" type="string" required>
+          Número do endereço.
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+          Complemento do endereço.
+        </ParamField>
+        <ParamField body="xBairro" type="string" required>
+          Bairro.
+        </ParamField>
+        <ParamField body="cMun" type="integer" required>
+          Município.
+        </ParamField>
+        <ParamField body="CEP" type="integer">
+          CEP.
+        </ParamField>
+        <ParamField body="cPais" type="integer" required>
+          País.
+        </ParamField>
+        <ParamField body="email" type="string">
+          E-mail do Recebedor
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="dest" type="object">
+  
+
+      <Expandable title="Propriedades de dest">
+        <ParamField body="nDoc" type="string" required>
+          CPF/CNPJ do Destinatário.
+        </ParamField>
+        <ParamField body="IE" type="string" required>
+          Inscrição estadual.
+        </ParamField>
+        <ParamField body="cFiscal" type="integer" required>
+          Classificação Fiscal: 
+         1 = 351-EMPRESA DE TRANSPORTE 
+         2 = 352-ESTABELECIMENTO INDUSTRIAL 
+         3 = 353-ESTABELECIMENTO COMERCIAL 
+         4 = 354-ESTABELECIMENTO PRESTADOR DE SERVICO 
+         5 = 355-GERADORA OU DISTRIB. DE ENERGIA ELETRICA 
+         6 = 356-PRODUTOR RURAL 
+         7 = 357-NAO CONTRIBUINTE 
+         8 = 360-PREST SERV DE TRANSPORTE A CONTRIBUINTE SUBST 
+         9 = 359-PREST SERV A NAO CONTRIBUINTE ISENTO OBRIGATO 
+         10 = 932-SERVIÇO DE TRANSPORTE FORA DA SEDE DA TRANSPO 
+         11 = 206-ANULACAO DE VALOR RELATIVO À PRESTAÇÃO DE SER
+
+          Valores aceitos: `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`.
+        </ParamField>
+        <ParamField body="xNome" type="string" required>
+          Razão social.
+        </ParamField>
+        <ParamField body="xFant" type="string" required>
+          Nome fantasia.
+        </ParamField>
+        <ParamField body="nFone" type="string" required>
+          Telefone.
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+          Inscrição suframa.
+        </ParamField>
+        <ParamField body="xLgr" type="string" required>
+          Endereço do Destinatário.
+        </ParamField>
+        <ParamField body="nro" type="string" required>
+          Número do endereço.
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+          Complemento do endereço.
+        </ParamField>
+        <ParamField body="xBairro" type="string" required>
+          Bairro.
+        </ParamField>
+        <ParamField body="cMun" type="integer" required>
+          Município.
+        </ParamField>
+        <ParamField body="CEP" type="integer" required>
+          CEP.
+        </ParamField>
+        <ParamField body="cPais" type="integer" required>
+          País.
+        </ParamField>
+        <ParamField body="email" type="string" required>
+          E-mail do Destinatário.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="documentos" type="array of objects">
+  
+
+      <Expandable title="Cada item de documentos">
+        <ParamField body="nPed" type="string">
+          Número do pedido.
+        </ParamField>
+        <ParamField body="serie" type="string" required>
+          Serie da nota.
+        </ParamField>
+        <ParamField body="nDoc" type="string" required>
+          Número da nota.
+        </ParamField>
+        <ParamField body="dEmi" type="string" required>
+          Data de emissão da nota.
+        </ParamField>
+        <ParamField body="vBC" type="number">
+          Valor da base de cálculo do ICMS.
+        </ParamField>
+        <ParamField body="vICMS" type="number">
+          Valor do ICMS.
+        </ParamField>
+        <ParamField body="vBCST" type="number">
+          Valor de base de cálculo do ICMS ST.
+        </ParamField>
+        <ParamField body="vST" type="number">
+          Valor do ICMS ST.
+        </ParamField>
+        <ParamField body="vProd" type="number" required>
+          Valor dos produtos.
+        </ParamField>
+        <ParamField body="vNF" type="number" required>
+          Valor da NF.
+        </ParamField>
+        <ParamField body="nCFOP" type="integer">
+          CFOP.
+        </ParamField>
+        <ParamField body="pBru" type="number">
+          Peso bruto.
+        </ParamField>
+        <ParamField body="qVol" type="integer" required>
+          Quantidade de volumes.
+        </ParamField>
+        <ParamField body="PIN" type="integer">
+          PIN SUFRAMA.
+        </ParamField>
+        <ParamField body="chave" type="string">
+          Chave da NFe.
+        </ParamField>
+        <ParamField body="tpDoc" type="string" required>
+          Tipo de Documento 00-Declaração; 01-NF Modelo 01/1A e Avulsa; 55-NFe,obrigatória chave.
+
+          Valores aceitos: `00`, `01`, `1A`, `55`.
+        </ParamField>
+        <ParamField body="xEsp" type="string" required>
+          Espécie de mercadoria.
+        </ParamField>
+        <ParamField body="xNat" type="string" required>
+          Natureza da mercadoria.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="docAnt" type="array of objects">
+  
+
+      <Expandable title="Cada item de docAnt">
+        <ParamField body="chCTe" type="string" required>
+          Chave do CTe anterior.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="cteComp" type="object">
+  
+
+      <Expandable title="Propriedades de cteComp">
+        <ParamField body="chCTe" type="string">
+          Chave CTe complementar.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/emissao/minuta" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+  "documentos": [
+    {
+      "minuta": {
+        "toma": 0,
+        "nDocEmit": "string",
+        "dEmi": 0,
+        "rSeg": 0
+      },
+      "compl": {
+        "entrega": {
+          "dPrev": "string",
+          "hPrev": "string"
+        },
+        "respEntrega": {
+          "tpResp": 1,
+          "nDoc": "string",
+          "cServ": "string"
+        },
+        "cOrigCalc": 0,
+        "cDestCalc": 0
+      },
+      "toma": {
+        "nDoc": "string",
+        "IE": "string",
+        "cFiscal": 1,
+        "xNome": "string"
+      },
+      "rem": {
+        "nDoc": "string",
+        "IE": "string",
+        "cFiscal": 1,
+        "xNome": "string"
+      }
+    }
+  ]
+}'
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+```json
+// Exemplo original do Swagger (contém comentários inline // no próprio texto-fonte)
+{
+  "message":"OK",
+  "status":1,
+  "data":[
+    {
+      "cAut":807060,
+      "status":1,
+      "message":"Documento gerado no sistema",
+      "id":"163090",
+      "url_tracking": "https://DOMINIO.brudam.com.br/api/v1/tracking/ocorrencias/minuta?codigo=163090"
+    }
+  ]
+}
+```
+
+**`400`** — Retorno erro preenchimento
+
+```json
+{
+  "message":"Erro nos dados enviados",
+  "status":0,
+  "data":[
+    "O campo 'Documentos->[0]->Minuta->Toma' deve conter um dos seguintes valores: 0,1,2,3,4"
+  ]
+}
+```
+
+---
+
+## Consultar minuta
+
+Consulta os dados de uma minuta no sistema com o envio do ID da minuta ou a Chave do CTe da minuta
+
+**`GET /operacional/consulta/minuta/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string" required>
+  
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/consulta/minuta/{id}" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+**`400`** — Retorno erro preenchimento
+
+---
+
+## Cancelar minuta
+
+Cancela uma minuta no sistema com o envio do ID
+
+**`GET /operacional/cancela/minuta/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string" required>
+  
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/cancela/minuta/{id}" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+```json
+{
+  "message": "OK",
+  "status": 1,
+  "data": {
+    "message": "A minuta 4304636 foi cancelada com sucesso"
+  }
+}
+```
+
+**`400`** — Retorno erro preenchimento
+
+```json
+{
+  "message":"Erro nos dados enviados",
+  "status":0,
+  "data":[
+    "Ocorreu um erro ao cancelar a minuta 4304636 ou a mesma já se encontra cancelada"
+  ]
+}
+```
+
+---
+
+## Atualizar controle de temperatura (perecível)
+
+Altera controle de temperatura da minuta para perecível e atualiza data e hora da troca do gelo.
+
+**`POST /operacional/alteracao/minuta_perecivel`**
+
+### Corpo da requisição
+
+<ParamField body="minuta" type="integer" required>
+  Número da minuta do sistema.
+</ParamField>
+
+<ParamField body="data" type="string" required>
+  Data e hora da atualização.
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/alteracao/minuta_perecivel" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+  "minuta": 0,
+  "data": "string"
+}'
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+```json
+{
+  "message":"OK",
+  "status":1,
+  "data":{
+    "status":1,
+    "message":"Dados do controle de temperatura atualizados com sucesso."
+  }
+}
+```
+
+**`400`** — Retorno erro preenchimento
+
+```json
+{
+  "message":"Erro nos dados enviados",
+  "status":0,
+  "data":[
+    "message": "Dados de entrada invalidos"
+  }
+]
+}
+```
+
+**`404`** — Se a URL informada não for encontrada
+
+```json
+{
+  "message": "Nenhum resultado encontrado!",
+  "status": 0
+}
+```
+
+**`405`** — Se a URL chamada não suporta o método utilizado
+
+```json
+{
+  "message": "Método não permitido!",
+  "status": 0
+}
+```
+
+---

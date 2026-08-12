@@ -1,0 +1,74 @@
+---
+title: "Autenticação"
+sidebarTitle: "Autenticação"
+description: "Como obter e usar o token JWT para autenticar chamadas à API Brudam."
+---
+
+Para utilizar a API é necessário um token JWT válido, enviado no header `Authorization`
+de cada requisição. O token é obtido chamando `POST /acesso/auth/login`.
+
+## Obter o token
+
+**`POST /acesso/auth/login`**
+
+<ParamField body="usuario" type="string" required>
+  Exatamente 32 caracteres. Gerado na tela 669 do sistema Brudam.
+</ParamField>
+
+<ParamField body="senha" type="string" required>
+  Exatamente 64 caracteres — um hash em formato hexadecimal (`^[0-9A-Fa-f]{64}`), não a
+  senha em texto puro. Gerado na tela 669 do sistema Brudam.
+</ParamField>
+
+<Warning>
+`usuario` e `senha` aqui **não** são o login humano do painel Brudam — são credenciais
+de integração geradas especificamente para a API, na tela 669. Se você enviar um
+login/senha de usuário comum, vai receber `403`.
+</Warning>
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://{cliente}.brudam.com.br/api/v1/acesso/auth/login" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "usuario": "<32 caracteres gerados na tela 669>",
+    "senha": "<hash de 64 caracteres gerado na tela 669>"
+  }'
+```
+
+</CodeGroup>
+
+### Resposta
+
+```json
+{
+  "message": "OK",
+  "status": 0,
+  "data": {
+    "message": "Autenticado",
+    "access_key": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9..."
+  }
+}
+```
+
+## Usando o token
+
+Envie o valor de `access_key` no header `Authorization` de todas as chamadas
+subsequentes, com o prefixo `Bearer ` (note o espaço):
+
+```
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
+```
+
+<Warning>
+Esquecer o prefixo `Bearer ` é a causa mais comum de erro `401` — o header precisa da
+palavra `Bearer` seguida de um espaço antes do token.
+</Warning>
+
+<Note>
+O Swagger original não documenta o tempo de expiração do token nem um fluxo de
+renovação/revogação. Se isso existir no backend, vale confirmar com o time técnico
+para documentar aqui — não vamos inventar esse comportamento.
+</Note>

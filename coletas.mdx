@@ -1,0 +1,1279 @@
+---
+title: "API de Coletas: emitir, atualizar, consultar e cancelar coletas"
+sidebarTitle: "Coletas"
+description: "Endpoints para emissão, atualização, listagem, consulta individual e cancelamento de ordens de coleta."
+---
+
+Todos os endpoints exigem autenticação via Bearer Token no cabeçalho `Authorization`.
+
+---
+
+## Emitir coleta
+
+Gerar coleta
+
+**`POST /operacional/emissao/coleta`**
+
+### Corpo da requisição
+
+<ParamField body="documentos" type="array of objects">
+  
+
+  <Expandable title="Cada item de documentos">
+    <ParamField body="coleta" type="object">
+  
+
+      <Expandable title="Propriedades de coleta">
+        <ParamField body="toma" type="integer" required>
+          Valores aceitos: `0`, `1`, `2`, `3`, `4`.
+        </ParamField>
+        <ParamField body="nDocEmit" type="string" required>
+  
+        </ParamField>
+        <ParamField body="dEmi" type="string" required>
+  
+        </ParamField>
+        <ParamField body="xSoli" type="string" required>
+  
+        </ParamField>
+        <ParamField body="telefoneSoli" type="string">
+          Telefone
+        </ParamField>
+        <ParamField body="hIni" type="string" required>
+          Horário limite para coleta de: (Formato H:i)
+        </ParamField>
+        <ParamField body="hFim" type="string" required>
+          Horário limite para coleta até: (Formato H:i)
+        </ParamField>
+        <ParamField body="rSeg" type="integer" required>
+          Valores aceitos: `0`, `1`, `2`, `3`, `4`, `5`, `9`.
+        </ParamField>
+        <ParamField body="cSeg" type="string">
+  
+        </ParamField>
+        <ParamField body="dColeta" type="string">
+  
+        </ParamField>
+        <ParamField body="dColetaLim" type="string">
+  
+        </ParamField>
+        <ParamField body="cServ" type="string" required>
+  
+        </ParamField>
+        <ParamField body="cAut" type="string">
+  
+        </ParamField>
+        <ParamField body="carga" type="object">
+  
+
+          <Expandable title="Propriedades de carga">
+            <ParamField body="pBru" type="number" required>
+  
+            </ParamField>
+            <ParamField body="pCub" type="number" required>
+  
+            </ParamField>
+            <ParamField body="qVol" type="integer" required>
+  
+            </ParamField>
+            <ParamField body="vTot" type="number" required>
+  
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="volumes" type="array of objects">
+  
+
+          <Expandable title="Cada item de volumes">
+            <ParamField body="dCom" type="number">
+              Comprimento do volume.
+            </ParamField>
+            <ParamField body="dLar" type="number">
+              Largura do volume.
+            </ParamField>
+            <ParamField body="dAlt" type="number">
+              Altura do volume.
+            </ParamField>
+            <ParamField body="qVol" type="number">
+              Quantidade de volumes com as dimensões acima.
+            </ParamField>
+            <ParamField body="pBru" type="number">
+              Peso bruto dos volumes.
+            </ParamField>
+            <ParamField body="pCub" type="number">
+              Peso cubado dos volumes.
+            </ParamField>
+            <ParamField body="cEtiq" type="string">
+              Código da etiqueta.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="cStatus" type="integer">
+          Valores aceitos: `1`, `12`.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="compl" type="object">
+  
+
+      <Expandable title="Propriedades de compl">
+        <ParamField body="respEntrega" type="object">
+          1 - Proprio, 2 - Agente, 3 - Terceiro, 4 - Cia Trans, 5 - Balcao Base, 6 - Base, 0 - Nao definido
+
+          <Expandable title="Propriedades de respEntrega">
+            <ParamField body="tpResp" type="integer" required>
+              Valores aceitos: `0`, `1`, `2`, `3`, `4`, `5`, `6`.
+            </ParamField>
+            <ParamField body="nDoc" type="string" required>
+  
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="respColeta" type="object">
+          1 - Proprio, 2 - Agente, 3 - Terceiro, 4 - Cia Trans, 5 - Balcao Base, 6 - Base, 0 - Nao definido
+
+          <Expandable title="Propriedades de respColeta">
+            <ParamField body="tpResp" type="integer" required>
+              Valores aceitos: `0`, `1`, `2`, `3`, `4`, `5`, `6`.
+            </ParamField>
+            <ParamField body="nDoc" type="string" required>
+  
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="xObs" type="string">
+          Observações.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="toma" type="object">
+  
+
+      <Expandable title="Propriedades de toma">
+        <ParamField body="nDoc" type="string" required>
+  
+        </ParamField>
+        <ParamField body="IE" type="string" required>
+  
+        </ParamField>
+        <ParamField body="xNome" type="string" required>
+  
+        </ParamField>
+        <ParamField body="xFant" type="string" required>
+  
+        </ParamField>
+        <ParamField body="nFone" type="string">
+  
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+  
+        </ParamField>
+        <ParamField body="xLgr" type="string" required>
+  
+        </ParamField>
+        <ParamField body="nro" type="string" required>
+  
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+  
+        </ParamField>
+        <ParamField body="xBairro" type="string" required>
+  
+        </ParamField>
+        <ParamField body="cMun" type="integer" required>
+  
+        </ParamField>
+        <ParamField body="CEP" type="integer">
+  
+        </ParamField>
+        <ParamField body="cPais" type="integer" required>
+  
+        </ParamField>
+        <ParamField body="email" type="string">
+  
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="rem" type="object">
+  
+
+      <Expandable title="Propriedades de rem">
+        <ParamField body="nDoc" type="string" required>
+  
+        </ParamField>
+        <ParamField body="IE" type="string" required>
+  
+        </ParamField>
+        <ParamField body="xNome" type="string" required>
+  
+        </ParamField>
+        <ParamField body="xFant" type="string" required>
+  
+        </ParamField>
+        <ParamField body="nFone" type="string">
+  
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+  
+        </ParamField>
+        <ParamField body="xLgr" type="string" required>
+  
+        </ParamField>
+        <ParamField body="nro" type="string" required>
+  
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+  
+        </ParamField>
+        <ParamField body="xBairro" type="string" required>
+  
+        </ParamField>
+        <ParamField body="cMun" type="integer" required>
+  
+        </ParamField>
+        <ParamField body="CEP" type="integer">
+  
+        </ParamField>
+        <ParamField body="cPais" type="integer" required>
+  
+        </ParamField>
+        <ParamField body="email" type="string">
+  
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="exped" type="object">
+  
+
+      <Expandable title="Propriedades de exped">
+        <ParamField body="nDoc" type="string">
+  
+        </ParamField>
+        <ParamField body="IE" type="string">
+  
+        </ParamField>
+        <ParamField body="xNome" type="string">
+  
+        </ParamField>
+        <ParamField body="xFant" type="string">
+  
+        </ParamField>
+        <ParamField body="nFone" type="string">
+  
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+  
+        </ParamField>
+        <ParamField body="xLgr" type="string" required>
+  
+        </ParamField>
+        <ParamField body="nro" type="string" required>
+  
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+  
+        </ParamField>
+        <ParamField body="xBairro" type="string" required>
+  
+        </ParamField>
+        <ParamField body="cMun" type="integer" required>
+  
+        </ParamField>
+        <ParamField body="CEP" type="integer" required>
+  
+        </ParamField>
+        <ParamField body="cPais" type="integer" required>
+  
+        </ParamField>
+        <ParamField body="email" type="string">
+  
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="receb" type="object">
+  
+
+      <Expandable title="Propriedades de receb">
+        <ParamField body="nDoc" type="string">
+  
+        </ParamField>
+        <ParamField body="IE" type="string">
+  
+        </ParamField>
+        <ParamField body="xNome" type="string">
+  
+        </ParamField>
+        <ParamField body="xFant" type="string">
+  
+        </ParamField>
+        <ParamField body="nFone" type="string">
+  
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+  
+        </ParamField>
+        <ParamField body="xLgr" type="string" required>
+  
+        </ParamField>
+        <ParamField body="nro" type="string" required>
+  
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+  
+        </ParamField>
+        <ParamField body="xBairro" type="string" required>
+  
+        </ParamField>
+        <ParamField body="cMun" type="integer" required>
+  
+        </ParamField>
+        <ParamField body="CEP" type="integer" required>
+  
+        </ParamField>
+        <ParamField body="cPais" type="integer" required>
+  
+        </ParamField>
+        <ParamField body="email" type="string">
+  
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="dest" type="object">
+  
+
+      <Expandable title="Propriedades de dest">
+        <ParamField body="nDoc" type="string" required>
+  
+        </ParamField>
+        <ParamField body="IE" type="string" required>
+  
+        </ParamField>
+        <ParamField body="xNome" type="string" required>
+  
+        </ParamField>
+        <ParamField body="xFant" type="string" required>
+  
+        </ParamField>
+        <ParamField body="nFone" type="string">
+  
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+  
+        </ParamField>
+        <ParamField body="xLgr" type="string" required>
+  
+        </ParamField>
+        <ParamField body="nro" type="string" required>
+  
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+  
+        </ParamField>
+        <ParamField body="xBairro" type="string" required>
+  
+        </ParamField>
+        <ParamField body="cMun" type="integer" required>
+  
+        </ParamField>
+        <ParamField body="CEP" type="integer">
+  
+        </ParamField>
+        <ParamField body="cPais" type="integer" required>
+  
+        </ParamField>
+        <ParamField body="email" type="string">
+  
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="documentos" type="array of objects">
+  
+
+      <Expandable title="Cada item de documentos">
+        <ParamField body="nPed" type="string">
+          Número do pedido.
+        </ParamField>
+        <ParamField body="serie" type="string" required>
+          Serie da nota.
+        </ParamField>
+        <ParamField body="nDoc" type="string" required>
+          Número da nota.
+        </ParamField>
+        <ParamField body="dEmi" type="string" required>
+          Data de emissão da nota.
+        </ParamField>
+        <ParamField body="vBC" type="number">
+          Valor da base de cálculo do ICMS.
+        </ParamField>
+        <ParamField body="vICMS" type="number">
+          Valor do ICMS.
+        </ParamField>
+        <ParamField body="vBCST" type="number">
+          Valor de base de cálculo do ICMS ST.
+        </ParamField>
+        <ParamField body="vST" type="number">
+          Valor do ICMS ST.
+        </ParamField>
+        <ParamField body="vProd" type="number" required>
+          Valor dos produtos.
+        </ParamField>
+        <ParamField body="vNF" type="number" required>
+          Valor da NF.
+        </ParamField>
+        <ParamField body="nCFOP" type="integer">
+          CFOP.
+        </ParamField>
+        <ParamField body="pBru" type="number">
+          Peso bruto.
+        </ParamField>
+        <ParamField body="qVol" type="integer" required>
+          Quantidade de volumes.
+        </ParamField>
+        <ParamField body="PIN" type="integer">
+          PIN SUFRAMA.
+        </ParamField>
+        <ParamField body="chave" type="string">
+          Chave da NFe.
+        </ParamField>
+        <ParamField body="tpDoc" type="string" required>
+          Tipo de Documento 00-Declaração; 01-NF Modelo 01/1A e Avulsa; 55-NFe,obrigatória chave.
+
+          Valores aceitos: `00`, `01`, `1A`, `55`.
+        </ParamField>
+        <ParamField body="xEsp" type="string" required>
+          Espécie de mercadoria.
+        </ParamField>
+        <ParamField body="xNat" type="string" required>
+          Natureza da mercadoria.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/emissao/coleta" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+  "documentos": [
+    {
+      "coleta": {
+        "toma": 0,
+        "nDocEmit": "string",
+        "dEmi": "string",
+        "xSoli": "string"
+      },
+      "compl": {
+        "respEntrega": {
+          "tpResp": 0,
+          "nDoc": "string"
+        },
+        "respColeta": {
+          "tpResp": 0,
+          "nDoc": "string"
+        },
+        "xObs": "string"
+      },
+      "toma": {
+        "nDoc": "string",
+        "IE": "string",
+        "xNome": "string",
+        "xFant": "string"
+      },
+      "rem": {
+        "nDoc": "string",
+        "IE": "string",
+        "xNome": "string",
+        "xFant": "string"
+      }
+    }
+  ]
+}'
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+```json
+{
+  "message":"OK",
+  "status":1,
+  "data":[
+    {
+      "cAut":807060,
+      "status":1,
+      "message":"Documento gerado no sistema",
+      "id": "5165"
+    },
+    {
+      "cAut":807060,
+      "status":1,
+      "message":"Documento gerado no sistema",
+      "id":"5165"
+    }
+  ]
+}
+```
+
+**`400`** — Retorno erro preenchimento
+
+```json
+{
+  "message":"Erro nos dados enviados",
+  "status":0,
+  "data":[
+    "O campo 'Documentos->[0]->Coleta->Toma' deve conter um dos seguintes valores: 0,1,2,3,4"
+  ]
+}
+```
+
+---
+
+## Atualizar coleta
+
+Alterar coleta
+
+**`POST /operacional/alteracao/coleta`**
+
+### Corpo da requisição
+
+<ParamField body="documentos" type="array of objects">
+  
+
+  <Expandable title="Cada item de documentos">
+    <ParamField body="coleta" type="object">
+  
+
+      <Expandable title="Propriedades de coleta">
+        <ParamField body="id" type="integer" required>
+          ID da Coleta
+        </ParamField>
+        <ParamField body="nDocEmit" type="string" required>
+  
+        </ParamField>
+        <ParamField body="dEmi" type="string" required>
+  
+        </ParamField>
+        <ParamField body="xSoli" type="string">
+  
+        </ParamField>
+        <ParamField body="telefoneSoli" type="string">
+          Telefone
+        </ParamField>
+        <ParamField body="hIni" type="string">
+          Horário limite para coleta de: (Formato H:i)
+        </ParamField>
+        <ParamField body="hFim" type="string">
+          Horário limite para coleta até: (Formato H:i)
+        </ParamField>
+        <ParamField body="rSeg" type="integer">
+          Valores aceitos: `0`, `1`, `2`, `3`, `4`, `5`, `9`.
+        </ParamField>
+        <ParamField body="cSeg" type="string">
+  
+        </ParamField>
+        <ParamField body="dColeta" type="string" required>
+  
+        </ParamField>
+        <ParamField body="dColetaLim" type="string" required>
+  
+        </ParamField>
+        <ParamField body="cServ" type="string" required>
+  
+        </ParamField>
+        <ParamField body="cAut" type="string" required>
+  
+        </ParamField>
+        <ParamField body="carga" type="object">
+  
+
+          <Expandable title="Propriedades de carga">
+            <ParamField body="pBru" type="number">
+  
+            </ParamField>
+            <ParamField body="pCub" type="number">
+  
+            </ParamField>
+            <ParamField body="qVol" type="integer">
+  
+            </ParamField>
+            <ParamField body="vTot" type="number">
+  
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="cStatus" type="integer" required>
+          Valores aceitos: `1`, `12`.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="compl" type="object">
+  
+
+      <Expandable title="Propriedades de compl">
+        <ParamField body="respEntrega" type="object">
+          1 - Proprio, 2 - Agente, 3 - Terceiro, 4 - Cia Trans, 5 - Balcao Base, 6 - Base, 0 - Nao definido
+
+          <Expandable title="Propriedades de respEntrega">
+            <ParamField body="tpResp" type="integer">
+              Valores aceitos: `1`, `2`, `3`, `4`, `5`, `6`.
+            </ParamField>
+            <ParamField body="nDoc" type="string">
+  
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="respColeta" type="object">
+          1 - Proprio, 2 - Agente, 3 - Terceiro, 4 - Cia Trans, 5 - Balcao Base, 6 - Base, 0 - Nao definido
+
+          <Expandable title="Propriedades de respColeta">
+            <ParamField body="tpResp" type="integer">
+              Valores aceitos: `1`, `2`, `3`, `4`, `5`, `6`.
+            </ParamField>
+            <ParamField body="nDoc" type="string">
+  
+            </ParamField>
+          </Expandable>
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="toma" type="object">
+  
+
+      <Expandable title="Propriedades de toma">
+        <ParamField body="nDoc" type="string">
+  
+        </ParamField>
+        <ParamField body="IE" type="string">
+  
+        </ParamField>
+        <ParamField body="xNome" type="string">
+  
+        </ParamField>
+        <ParamField body="xFant" type="string">
+  
+        </ParamField>
+        <ParamField body="nFone" type="string">
+  
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+  
+        </ParamField>
+        <ParamField body="xLgr" type="string">
+  
+        </ParamField>
+        <ParamField body="nro" type="string">
+  
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+  
+        </ParamField>
+        <ParamField body="xBairro" type="string">
+  
+        </ParamField>
+        <ParamField body="cMun" type="integer">
+  
+        </ParamField>
+        <ParamField body="CEP" type="integer">
+  
+        </ParamField>
+        <ParamField body="cPais" type="integer">
+  
+        </ParamField>
+        <ParamField body="email" type="string">
+  
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="rem" type="object">
+  
+
+      <Expandable title="Propriedades de rem">
+        <ParamField body="nDoc" type="string">
+  
+        </ParamField>
+        <ParamField body="IE" type="string">
+  
+        </ParamField>
+        <ParamField body="xNome" type="string">
+  
+        </ParamField>
+        <ParamField body="xFant" type="string">
+  
+        </ParamField>
+        <ParamField body="nFone" type="string">
+  
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+  
+        </ParamField>
+        <ParamField body="xLgr" type="string">
+  
+        </ParamField>
+        <ParamField body="nro" type="string">
+  
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+  
+        </ParamField>
+        <ParamField body="xBairro" type="string">
+  
+        </ParamField>
+        <ParamField body="cMun" type="integer">
+  
+        </ParamField>
+        <ParamField body="CEP" type="integer">
+  
+        </ParamField>
+        <ParamField body="cPais" type="integer">
+  
+        </ParamField>
+        <ParamField body="email" type="string">
+  
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="exped" type="object">
+  
+
+      <Expandable title="Propriedades de exped">
+        <ParamField body="nDoc" type="string">
+  
+        </ParamField>
+        <ParamField body="IE" type="string">
+  
+        </ParamField>
+        <ParamField body="xNome" type="string">
+  
+        </ParamField>
+        <ParamField body="xFant" type="string">
+  
+        </ParamField>
+        <ParamField body="nFone" type="string">
+  
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+  
+        </ParamField>
+        <ParamField body="xLgr" type="string">
+  
+        </ParamField>
+        <ParamField body="nro" type="string">
+  
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+  
+        </ParamField>
+        <ParamField body="xBairro" type="string">
+  
+        </ParamField>
+        <ParamField body="cMun" type="integer">
+  
+        </ParamField>
+        <ParamField body="CEP" type="integer">
+  
+        </ParamField>
+        <ParamField body="cPais" type="integer">
+  
+        </ParamField>
+        <ParamField body="email" type="string">
+  
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="receb" type="object">
+  
+
+      <Expandable title="Propriedades de receb">
+        <ParamField body="nDoc" type="string">
+  
+        </ParamField>
+        <ParamField body="IE" type="string">
+  
+        </ParamField>
+        <ParamField body="xNome" type="string">
+  
+        </ParamField>
+        <ParamField body="xFant" type="string">
+  
+        </ParamField>
+        <ParamField body="nFone" type="string">
+  
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+  
+        </ParamField>
+        <ParamField body="xLgr" type="string">
+  
+        </ParamField>
+        <ParamField body="nro" type="string">
+  
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+  
+        </ParamField>
+        <ParamField body="xBairro" type="string">
+  
+        </ParamField>
+        <ParamField body="cMun" type="integer">
+  
+        </ParamField>
+        <ParamField body="CEP" type="integer">
+  
+        </ParamField>
+        <ParamField body="cPais" type="integer">
+  
+        </ParamField>
+        <ParamField body="email" type="string">
+  
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="dest" type="object">
+  
+
+      <Expandable title="Propriedades de dest">
+        <ParamField body="nDoc" type="string">
+  
+        </ParamField>
+        <ParamField body="IE" type="string">
+  
+        </ParamField>
+        <ParamField body="xNome" type="string">
+  
+        </ParamField>
+        <ParamField body="xFant" type="string">
+  
+        </ParamField>
+        <ParamField body="nFone" type="string">
+  
+        </ParamField>
+        <ParamField body="ISUF" type="string">
+  
+        </ParamField>
+        <ParamField body="xLgr" type="string">
+  
+        </ParamField>
+        <ParamField body="nro" type="string">
+  
+        </ParamField>
+        <ParamField body="xCpl" type="string">
+  
+        </ParamField>
+        <ParamField body="xBairro" type="string">
+  
+        </ParamField>
+        <ParamField body="cMun" type="integer">
+  
+        </ParamField>
+        <ParamField body="CEP" type="integer">
+  
+        </ParamField>
+        <ParamField body="cPais" type="integer">
+  
+        </ParamField>
+        <ParamField body="email" type="string">
+  
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/alteracao/coleta" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+  "documentos": [
+    {
+      "coleta": {
+        "id": 0,
+        "nDocEmit": "string",
+        "dEmi": "string",
+        "xSoli": "string"
+      },
+      "compl": "string",
+      "toma": {
+        "nDoc": "string",
+        "IE": "string",
+        "xNome": "string",
+        "xFant": "string"
+      },
+      "rem": {
+        "nDoc": "string",
+        "IE": "string",
+        "xNome": "string",
+        "xFant": "string"
+      }
+    }
+  ]
+}'
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+```json
+{
+  "message":"OK",
+  "status":1,
+  "data":[
+    {
+      "status":1,
+      "message":"Coleta 25690 atualizada com sucesso"
+    },
+    {
+      "status":1,
+      "message":"Nenhuma informação foi alterada na coleta 10670"
+    }
+  ]
+}
+```
+
+**`400`** — Retorno erro preenchimento
+
+```json
+{
+  "message":"Erro nos dados enviados",
+  "status":0,
+  "data":[
+    "message": "Dados de entrada invalidos"
+  }
+]
+}
+```
+
+---
+
+## Listar coletas
+
+Listar coletas
+
+**`POST /operacional/consulta/coletas`**
+
+### Corpo da requisição
+
+<ParamField body="documentos" type="array of objects">
+  
+
+  <Expandable title="Cada item de documentos">
+    <ParamField body="coleta" type="object">
+  
+
+      <Expandable title="Propriedades de coleta">
+        <ParamField body="dEmi" type="string">
+          Data de emissão da coleta
+        </ParamField>
+        <ParamField body="dPrev" type="string">
+          Data previsão de entrega da coleta
+        </ParamField>
+        <ParamField body="cStatus" type="integer">
+          1-Em aberto, 2-Finalizadas, 3-Canceladas
+
+          Valores aceitos: `1`, `2`, `3`.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="toma" type="object">
+  
+
+      <Expandable title="Propriedades de toma">
+        <ParamField body="nDoc" type="string">
+          Documento (CNPJ) do cliente.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/consulta/coletas" \
+  --header "Authorization: Bearer {seu_token}" \
+  --header "Content-Type: application/json" \
+  --data '{
+  "documentos": [
+    {
+      "coleta": {
+        "dEmi": "string",
+        "dPrev": "string",
+        "cStatus": 1
+      },
+      "toma": {
+        "nDoc": "string"
+      }
+    }
+  ]
+}'
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+```json
+{
+ "message": "OK",
+ "status": 1,
+ "data": [
+ [
+ {
+ "index":"1",
+ "id_coleta":"25690",
+ "data_emissao":"2020-11-12",
+ "data_coleta":"2020-11-12",
+ "hora_inicial_coleta":"08:25",
+ "hora_final_coleta":"11:45",
+ "cliente":"BRINGER DO BRASIL AGENCIAMENTO DE CARGAS NACIONAIS E INTERNA",
+ "cnpj_cliente":"22621939082",
+ "endereco_cliente":"Rua Frei Belino, 109",
+ "cidade_cliente_ibge":"4125506",
+ "cidade_cliente_nome":"SAO JOSE DOS PINHAIS - SP",
+ "local_coleta":"BRUDAM DESENVOLVIMENTO WEB",
+ "endereco_coleta":"Rua Holanda, 245, Ap 45",
+ "cidade_coleta_ibge":"4306767",
+ "cidade_coleta_nome":"ELDORADO DO SUL - RS",
+ "local_entrega":"MAGAZINE LUIZA",
+ "endereco_entrega":"Rua Eugenio, 345, casa",
+ "cidade_entrega_ibge":"4322525",
+ "cidade_entrega_nome":"VALE VERDE - RS",
+ "responsavel_coleta":"Claudio Castor",
+ "total_nf_valor":"100.00",
+ "peso":"40.00",
+ "volumes":100,
+ "qtde_volumes": [
+ {
+ "peso": 1,
+ "altura": 0.01,
+ "largura": 0.03,
+ "comprimento": 0.02,
+ "qtde_volumes": 1
+          },
+ {
+ "peso": 1,
+ "altura": 0.02,
+ "largura": 0.01,
+ "comprimento": 0.03,
+ "qtde_volumes": 2
+          }
+        ],
+ "documentos": [
+ {
+ "numero_nf": "65465",
+ "serie": "0",
+ "pedido": "456",
+ "tipo_documento": "3"
+          },
+ {
+ "numero_nf": "89987",
+ "serie": "3",
+ "pedido": "354",
+ "tipo_documento": "3"
+          }
+        ],
+ "minutas": "4309591,4309592"
+      }
+    ]
+  ]
+}
+```
+
+**`400`** — Retorno erro preenchimento
+
+```json
+{
+  "message":"Erro nos dados enviados",
+  "status":0,
+  "data":[
+    "message": "Dados de entrada invalidos"
+  }
+]
+}
+```
+
+---
+
+## Consultar coleta
+
+Consulta os dados de uma coleta no sistema com o envio do ID
+
+**`GET /operacional/consulta/coleta/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string" required>
+  
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/consulta/coleta/{id}" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+```json
+{
+ "message": "OK",
+ "status": 1,
+ "data": {
+ "id_coleta":"25690",
+ "data_emissao":"2020-11-12",
+ "data_coleta":"2020-11-12",
+ "hora_inicial_coleta":"08:25",
+ "hora_final_coleta":"11:45",
+ "cliente":"BRINGER DO BRASIL AGENCIAMENTO DE CARGAS NACIONAIS E INTERNA",
+ "cnpj_cliente":"22621939082",
+ "endereco_cliente":"Rua Frei Belino, 109",
+ "cidade_cliente_ibge":"4125506",
+ "cidade_cliente_nome":"SAO JOSE DOS PINHAIS - SP",
+ "local_coleta":"BRUDAM DESENVOLVIMENTO WEB",
+ "endereco_coleta":"Rua Holanda, 245, Ap 45",
+ "cidade_coleta_ibge":"4306767",
+ "cidade_coleta_nome":"ELDORADO DO SUL - RS",
+ "local_entrega":"MAGAZINE LUIZA",
+ "endereco_entrega":"Rua Eugenio, 345, casa",
+ "cidade_entrega_ibge":"4322525",
+ "cidade_entrega_nome":"VALE VERDE - RS",
+ "responsavel_coleta":"Claudio Castor",
+ "placa_veiculo":"XXX-9999",
+ "total_nf_valor":"100.00",
+ "peso":"40.00",
+ "volumes":100,
+ "xOrdemServico":"123456",
+ "qtde_volumes": [
+ {
+ "peso": 1,
+ "altura": 0.01,
+ "largura": 0.03,
+ "comprimento": 0.02,
+ "qtde_volumes": 1
+      },
+ {
+ "peso": 1,
+ "altura": 0.02,
+ "largura": 0.01,
+ "comprimento": 0.03,
+ "qtde_volumes": 2
+      }
+    ],
+ "documentos": [
+ {
+ "numero_nf": "12896",
+ "chave_nfe": "31201210588201123105555510040183431840184437",
+ "serie": "3",
+ "pedido": "321",
+ "tipo_documento": "3"
+      },
+ {
+ "numero_nf": "26568",
+ "chave_nfe": "32301210588201123106665510040183989840856473",
+ "serie": "0",
+ "pedido": "367",
+ "tipo_documento": "6"
+      }
+    ],
+ "minutas": "4309591,4309592"
+  }
+}
+```
+
+**`400`** — Retorno erro preenchimento
+
+```json
+{
+  "message":"Erro nos dados enviados",
+  "status":0,
+  "data":[
+    "message": "Dados de entrada invalidos"
+  }
+]
+}
+```
+
+---
+
+## Cancelar coleta
+
+Cancela uma coleta no sistema com o envio do ID
+
+**`GET /operacional/cancela/coleta/{id}`**
+
+### Parâmetros de caminho
+
+<ParamField path="id" type="string" required>
+  
+</ParamField>
+
+### Exemplo de requisição
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://{cliente}.brudam.com.br/api/v1/operacional/cancela/coleta/{id}" \
+  --header "Authorization: Bearer {seu_token}"
+```
+
+</CodeGroup>
+
+### Respostas
+
+**`200`** — Retorno sucesso
+
+```json
+{
+  "message": "OK",
+  "status": 1,
+  "data": {
+    "message": "A coleta 2568943 foi cancelada com sucesso"
+  }
+}
+```
+
+**`400`** — Retorno erro preenchimento
+
+```json
+{
+  "message":"Erro nos dados enviados",
+  "status":0,
+  "data":[
+    "Ocorreu um erro ao cancelar a coleta 2568943 ou a mesma já se encontra cancelada"
+  ]
+}
+```
+
+---
