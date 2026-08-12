@@ -1,38 +1,55 @@
 ---
-title: "Introdução à API"
+title: "Introdução"
 sidebarTitle: "Introdução"
-description: "Visão geral dos grupos de endpoints disponíveis na API Brudam."
+description: "Visão geral da API Brudam TMS: domínio por cliente, autenticação e grupos de endpoints."
 ---
 
-A API Brudam usa autenticação Bearer (JWT) e retorna respostas em JSON. Veja a página
-[Autenticação](/api-reference/autenticacao) para obter seu token.
+A API Brudam TMS é **multi-tenant por subdomínio**: cada transportadora acessa por um
+domínio próprio, no formato `<seuidentificador>.brudam.com.br`. Por exemplo:
 
-## O que está documentado nesta referência
+| Cliente | Domínio da API |
+|---|---|
+| Transportadora Um | `https://transportadoraum.brudam.com.br/api/v1` |
+| Transportadora Dois | `https://transportadoradois.brudam.com.br/api/v1` |
+
+<Warning>
+As credenciais (usuário/senha ou token) são específicas de cada subdomínio. Um token
+gerado em `transportadoraum.brudam.com.br` **não funciona** em
+`transportadoradois.brudam.com.br` — são ambientes isolados por cliente.
+</Warning>
+
+Nas páginas de referência desta documentação, o seletor de servidor (no topo de cada
+endpoint) pede o seu identificador de cliente para montar a URL correta automaticamente
+antes de testar.
+
+## Autenticação
+
+Veja [Autenticação](/autenticacao) para o passo a passo completo de como obter e usar
+seu token.
+
+## Grupos de endpoints
 
 <CardGroup cols={2}>
-  <Card title="CT-e" href="/api-reference/cte">
-    Consultar CT-es emitidos e cancelar CT-e.
-  </Card>
-  <Card title="Entregas (minutas)" href="/api-reference/entregas">
-    Emitir CT-e/minuta, consultar, cancelar e atualizar.
-  </Card>
-  <Card title="MDF-e" href="/api-reference/mdfe">
-    Emitir, atualizar, consultar e cancelar manifestos.
-  </Card>
-  <Card title="Coletas" href="/api-reference/coletas">
-    Emitir, atualizar, listar, consultar e cancelar coletas.
-  </Card>
-  <Card title="Rastreamento" href="/api-reference/rastreamento">
-    Registrar e consultar ocorrências de entrega.
-  </Card>
-  <Card title="Financeiro" href="/api-reference/financeiro">
-    Faturas e liquidação de lançamentos.
-  </Card>
+  <Card title="Ocorrências" href="/api-reference">Rastreamento de status por NF-e, CT-e, minuta, coleta, CNPJ ou pedido.</Card>
+  <Card title="CT-e" href="/api-reference">Consultar e cancelar Conhecimentos de Transporte.</Card>
+  <Card title="Minutas" href="/api-reference">Emitir CT-e/minuta, consultar, cancelar, atualizar.</Card>
+  <Card title="Manifestos (MDF-e)" href="/api-reference">Emitir, atualizar, consultar, cancelar.</Card>
+  <Card title="Coletas" href="/api-reference">Emitir, atualizar, listar, consultar, cancelar.</Card>
+  <Card title="Embarque Aéreo" href="/api-reference">Registrar embarques aéreos.</Card>
+  <Card title="Cotações" href="/api-reference">Emitir e alterar status de cotações de frete.</Card>
+  <Card title="Frete" href="/api-reference">Calcular frete.</Card>
+  <Card title="Prazos" href="/api-reference">Consultar prazos de entrega por trecho.</Card>
+  <Card title="Faturas / Financeiro" href="/api-reference">Cadastro, consulta e liquidação.</Card>
+  <Card title="Empresas" href="/api-reference">Cadastro e atualização de empresas e motoristas.</Card>
+  <Card title="Custos" href="/api-reference">Consulta de custos.</Card>
+  <Card title="Abastecimento" href="/api-reference">Registrar ordens de abastecimento.</Card>
+  <Card title="Trechos" href="/api-reference">Cadastrar trechos em tabela de frete.</Card>
 </CardGroup>
 
 <Note>
-O Swagger original também documenta outros grupos que ainda não têm página nesta
-referência: **Login**, **Embarque Aéreo**, **Cotações**, **Frete**, **Custos**,
-**Empresas**, **Prazos**, **Abastecimento** e **Trechos**. Se sua integração usa algum
-desses, peça para incluirmos a página correspondente.
+Todo o conteúdo de "Guias", "Conceitos", "Integrações" e "Planos e preços" que existia
+antes foi removido porque tinha sido gerado automaticamente e não correspondia ao
+sistema real (incluindo preços que nunca existiram). Esta versão documenta **apenas** o
+que está de fato no Swagger da API — o que não está aqui ainda não foi confirmado com o
+time técnico.
 </Note>

@@ -1,51 +1,23 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "name": "Brudam TMS",
-  "theme": "luma",
+  "theme": "mint",
+  "name": "Brudam TMS — API",
   "colors": {
     "primary": "#ef7025",
-    "light": "#eec9bc",
-    "dark": "#4fa1ab"
+    "light": "#f4915a",
+    "dark": "#c85a10"
   },
-  "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentação",
+        "tab": "Guias",
         "groups": [
           {
-            "group": "Introdução",
+            "group": "Primeiros passos",
             "pages": [
-              "introduction",
-              "quickstart",
-              "planos-e-precos"
-            ]
-          },
-          {
-            "group": "Conceitos",
-            "pages": [
-              "conceitos/visao-geral",
-              "conceitos/documentos-fiscais",
-              "conceitos/operacoes",
-              "conceitos/integracoes"
-            ]
-          },
-          {
-            "group": "Guias",
-            "pages": [
-              "guias/emissao-cte",
-              "guias/emissao-mdfe",
-              "guias/rastreamento",
-              "guias/portal-cliente",
-              "guias/aplicativo-motorista"
-            ]
-          },
-          {
-            "group": "Integrações",
-            "pages": [
-              "integracoes/erp",
-              "integracoes/ecommerce",
-              "integracoes/bancos-e-pagamentos"
+              "introducao",
+              "autenticacao",
+              "erros"
             ]
           }
         ]
@@ -54,27 +26,126 @@
         "tab": "API Reference",
         "groups": [
           {
-            "group": "Início",
-            "pages": [
-              "api-reference/introducao",
-              "api-reference/autenticacao",
-              "api-reference/erros"
-            ]
+            "group": "Login",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "Login"
+            }
           },
           {
-            "group": "Endpoints",
-            "pages": [
-              "api-reference/entregas",
-              "api-reference/coletas",
-              "api-reference/cte",
-              "api-reference/mdfe",
-              "api-reference/rastreamento",
-              "api-reference/financeiro"
-            ]
+            "group": "Ocorrências (rastreamento)",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "Ocorrências"
+            }
+          },
+          {
+            "group": "CT-e",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "CT-e"
+            }
+          },
+          {
+            "group": "Minutas (entregas)",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "Minutas"
+            }
+          },
+          {
+            "group": "Manifestos (MDF-e)",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "Manifestos"
+            }
+          },
+          {
+            "group": "Coletas",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "Coletas"
+            }
+          },
+          {
+            "group": "Embarque Aéreo",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "Embarque Aéreo"
+            }
+          },
+          {
+            "group": "Cotações",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "Cotações"
+            }
+          },
+          {
+            "group": "Frete",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "Frete"
+            }
+          },
+          {
+            "group": "Prazos",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "Prazos"
+            }
+          },
+          {
+            "group": "Faturas",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "Faturas"
+            }
+          },
+          {
+            "group": "Financeiro",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "Financeiro"
+            }
+          },
+          {
+            "group": "Empresas",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "Empresas"
+            }
+          },
+          {
+            "group": "Custos",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "Custos"
+            }
+          },
+          {
+            "group": "Abastecimento",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "Abastecimento"
+            }
+          },
+          {
+            "group": "Trechos",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "tag": "Trechos"
+            }
           }
         ]
       }
     ]
+  },
+  "api": {
+    "openapi": "api-reference/openapi.json",
+    "playground": {
+      "display": "interactive"
+    }
   },
   "navbar": {
     "primary": {
